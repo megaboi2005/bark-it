@@ -1,4 +1,13 @@
 from aiohttp import web
+from os.path import exists
+from cryptography.fernet import Fernet
+
+
+
+
+
+
+    
 
 
 def form(name,desc,location):
@@ -14,19 +23,31 @@ async def register(request):
 	try:
 		name = request.rel_url.query['name']
 		password = request.rel_url.query['pass']
-		finalname = {filter(name)}
-		finalpass = filter(password)
-		output = '{"name":"'+finalname+'","post":"'+finalpass+'"}'
-		return web.Response(text='yay',content_type='text/html')
-	
+		finalname = filter(name)
+		finalpass = str(f.encrypt(filter(password).encode()))
+		users = open('users/users.json','r').read()
+		#{"Name":"bob", "Password":"5d41402abc4b2a76b9719d911017c592", "Email":"bob@email.com", "Posts":[2, 32, 53, 74]}
+		output = '{"'+ finalname +':{password":"' + finalpass + '"}}'+'\n'
+		if name in users:
+			return web.Response(text='account exists',content_type='text/html')
+		else:
+			userwrite = open('users/users.json','a')
+			userwrite.write(output)
+			return web.Response(text='yay',content_type='text/html')
+		return web.Response(text='something went wrong sorry',content_type='text/html')
 	except KeyError:
 		formin = form('name','pass','register')
 		return web.Response(text=formin,content_type='text/html')
 
 
-
-
-
+if not exists('secret.key'):
+	key = Fernet.generate_key()
+	key_file = open("secret.key", "wb")
+	key_file.write(key)
+else:
+	key = open("secret.key", "rb").read()
+	print(key)
+f = Fernet(key)
 
 
 app = web.Application()
