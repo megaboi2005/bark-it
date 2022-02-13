@@ -1,5 +1,5 @@
 <h1 align="center">Bark-IT</h1>
-I made this because twitter sucks also birds suck dogs better so bark-it ftw
+<p align="center">I made this because twitter sucks also birds suck dogs better so bark-it ftw </p>
 
 ## plans
 - [ ] Able to post .-.
