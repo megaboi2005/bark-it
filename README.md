@@ -4,7 +4,7 @@
 ## plans
 - [ ] Able to post .-.
 - [ ]  Accounts
-- [ ]  2 factor authication 
+- [ ]  2 factor authentication
 - [ ]  No exploits LOL
 - [ ]  User settings
 - [ ]  Some javascript
