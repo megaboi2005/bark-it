@@ -1,1 +1,0 @@
-<div class=post><form action="/{location}"><label for="id">{name}: </label><input type="text" id="{name}" name="{name}"><br> <textarea id="{desc}" name="{desc}" rows="4" cols="50"></textarea><br><input type="submit" value="Submit"></form></div>
