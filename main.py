@@ -28,17 +28,18 @@ async def register(request):
         finalname = filter(name)
         finalpass = str(f.encrypt(filter(password).encode()))
         # Gets a list of existing users
-        users = getData('users/users.json').keys()
+        users = getData('json/users.json').keys()
         # Get current data and updates it
-        data = getData('users/users.json')
+        data = getData('json/users.json')
         data.update({finalname:{'password':finalpass, 'posts':[]}})
         # Stops users from making an account that already exists
         if name in users:
             return web.Response(text='account exists',content_type='text/html')
         # Adds the user
         else:
-            userwrite = open('users/users.json','w')
+            userwrite = open('json/users.json','w')
             userwrite.write(json.dumps(data, indent=2))
+            print('The user"'+name+'" was added.')
             return web.Response(text='yay',content_type='text/html')
         return web.Response(text='something went wrong sorry',content_type='text/html')
 
