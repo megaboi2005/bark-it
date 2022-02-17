@@ -35,12 +35,14 @@ async def register(request):
         # Stops users from making an account that already exists
         if name in users:
             return web.Response(text='account exists',content_type='text/html')
+
         # Adds the user
         else:
             userwrite = open('json/users.json','w')
             userwrite.write(json.dumps(data, indent=2))
             print('The user"'+name+'" was added.')
             return web.Response(text='yay',content_type='text/html')
+	
         return web.Response(text='something went wrong sorry',content_type='text/html')
 
     except KeyError:
