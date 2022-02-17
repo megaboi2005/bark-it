@@ -13,3 +13,6 @@
 ## about
 I was quarantined one day so I made a crappy website and decided to rewrite it and make it open source.
 The old code sucked so I thought I'd rewrite it.
+
+## credits
+- Thanks to BigJango for taking it upon themself to rewrite all the old features and optimizing my crappy code.
