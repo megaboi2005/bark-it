@@ -88,6 +88,7 @@ app.add_routes([
     web.get('/register', register),
     web.get('/index', main),
     web.get('/', main)
+    web.static('/images', "images", show_index=True)
 ])
 web.run_app(app)
 
