@@ -123,14 +123,14 @@ async def main(request):
     return web.Response(text=page, content_type='text/html')
 
 # Generates the key if it doesn't exist
-if not exists('secret.key'):
-    key = Fernet.generate_key()
-    key_file = open('secret.key', 'wb')
-    key_file.write(key)
-    key_file.close()
+#if not exists('secret.key'):
+ #   key = Fernet.generate_key()
+  #  key_file = open('secret.key', 'wb')
+   # key_file.write(key)
+    #key_file.close()
 
-key = open('secret.key', 'rb').read()
-f = Fernet(key)
+#key = open('secret.key', 'rb').read()
+#f = Fernet(key)
 
 # Starts the web app
 app = web.Application()
