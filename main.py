@@ -127,6 +127,7 @@ if not exists('secret.key'):
     key = Fernet.generate_key()
     key_file = open('secret.key', 'wb')
     key_file.write(key)
+    key_file.close()
 
 key = open('secret.key', 'rb').read()
 f = Fernet(key)
