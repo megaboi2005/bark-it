@@ -98,7 +98,7 @@ async def main(request):
         page = 0
 
     posts = ""
-    numPosts = cutList(list(json.load(open("json/posts.json", "r")).keys()), 3)
+    numPosts = cutList(list(json.load(open("json/posts.json", "r")).keys())[::-1], 3)
     try:
         postsForPage = numPosts[page]
     except:
