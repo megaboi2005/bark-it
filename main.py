@@ -61,9 +61,9 @@ async def main(request):
     "<b>{currentPost["title"]}</b>" {"&#x1F512;" if currentPost["locked"] else ""}
     <br> posted by <b>{currentPost["author"]}</b>
   </p>
-  <textarea readonly class=textpost>
+  <p class=textpost>
     {currentPost["content"]}
-  </textarea>
+  </p>
   <br>
     <a href=/comments?id={id}>
       <button>comments (don't work yet)</button>
