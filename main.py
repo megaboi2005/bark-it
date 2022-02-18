@@ -28,7 +28,7 @@ def filter(var):
         ).replace('<', '&lt;'
         ).replace('>', '&gt;').strip()
 
-def getUsername(request): 
+def getUsername(request):
     return request.rel_url.query['name']
 
 async def register(request):
@@ -69,7 +69,7 @@ async def post(request):
 
         if name == '' or post == '' or title == '':
             return web.Response(text=indexFile.replace('^posts^', 'You can\'t do that.'), content_type='text/html')
-        
+
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys()))+1
         postfile = open('json/posts.json', 'w')
@@ -124,10 +124,10 @@ async def main(request):
 
 # Generates the key if it doesn't exist
 #if not exists('secret.key'):
- #   key = Fernet.generate_key()
-  #  key_file = open('secret.key', 'wb')
-   # key_file.write(key)
-    #key_file.close()
+#    key = Fernet.generate_key()
+#    key_file = open('secret.key', 'wb')
+#    key_file.write(key)
+#    key_file.close()
 
 #key = open('secret.key', 'rb').read()
 #f = Fernet(key)
