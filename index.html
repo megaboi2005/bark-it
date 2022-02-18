@@ -1,10 +1,9 @@
 <style>
 body {
-  background-image: linear-gradient(to left, black , dimgrey);
+  background-image: linear-gradient(to left, black, dimgrey);
   resize: vertical;
   overflow: auto;
   width: 90%;
-  
 
 }
 .topbar {
@@ -14,9 +13,9 @@ body {
 	background-color: #808080;
 	height: 300px;
 	width: 100px;
-
-	
+  	background: linear-gradient(to right, dimgrey, #5E5E5E)
 }
+
 .navbar{
 
 	border-radius: 10px;
@@ -27,7 +26,7 @@ body {
 
 }
 .post {
-	
+
 	left: 100%;
 	border-radius: 10px;
 	top: 100%;
@@ -37,19 +36,19 @@ body {
 	border-style: solid;
 	border-color: #6b6b6b;
 	border-width: 20px;
-	margin: 20px; 
-	
+	margin: 20px;
+
 	overflow: hidden;
-  	
+
 }
 .page {
 	border-radius: 10px;
   background:#2e2d2d;
   position: fixed;
-  height: 100%; 
-  width: 95%; 
+  height: 100%;
+  width: 95%;
   display: flex;
-  margin-right:auto; 
+  margin-right:auto;
   margin-top:0%;
   overflow: auto;
 
@@ -63,7 +62,7 @@ body {
 	border-style: solid;
 	border-color: #6b6b6b;
 	border-width: 40px;
-	margin: 5px; 
+	margin: 5px;
 	resize: vertical;
 	overflow-x: auto;
 }
@@ -75,8 +74,8 @@ body {
 	color: white;
 	width: 100%;
 	color: #b3b3b3;
-	
-	
+
+
 }
 .textpost {
 	background-color: dimgrey;
@@ -111,7 +110,13 @@ button{
 	width: 100px;
 	height: 50px;
 	right: 0%;
+  transition-duration: 0.2s;
 }
+
+button:hover {
+  background: #4F4F4F;
+}
+
 code{
 	color: #b3b3b3;
 	border-radius: 5px;
@@ -122,9 +127,9 @@ code{
 only screen and (max-width:1280px) {
 .post {
 	font-size: 20px;
-	
+
 	border-radius: 10px;
-	
+
 
 	background-color: #6B6B6B;
 	width: 60%;
@@ -132,8 +137,8 @@ only screen and (max-width:1280px) {
 	border-style: solid;
 	border-color: #6b6b6b;
 	border-width: 20px;
-	margin: 20px; 
-	
+	margin: 20px;
+
 	overflow: hidden;
 
 
@@ -145,17 +150,17 @@ only screen and (max-width:1280px) {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
- 
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #888;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 </style>
 <div class=page>
@@ -166,10 +171,10 @@ only screen and (max-width:1280px) {
 <title>Bark-it - public board</title>
 </head>
 <div class=topbar>
-	
+
 	<center>
-	
-	<img src="./images/bark-it.png" width=110%>
+
+	<img src="./images/bark-it.png" width=110% class = "logo">
 	<h2><a href="/index"><button>home</button></a></h2>
 	<h2><a href="/post"><button>post</button></a></h2>
 	<h2><a href="/tutorial"><button>how2use&y</button></a></h2>
