@@ -16,3 +16,5 @@ The old code sucked so I thought I'd rewrite it.
 
 ## Credits
 - Thanks to BigJango for taking it upon themself to rewrite all the old features and optimizing my crappy code.
+- Thanks to TheShadowDragon for using his javascript skills
+- Thanks to SkyKrye for making the main page
