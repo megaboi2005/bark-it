@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bark-it: About</title>
+    <style>
+      h1{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:50px;color:#F97B72;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 30px;width:350px;}
+      h2{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#00FFD4;font-style:italic;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:700px;}
+      h3{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:30px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:900px;}
+      h4{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:30px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:600px;}
+      h5{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:30px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:900px;}
+      h6{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color: #FCFFB2;font-style: bold;text-align: center;border: 5px solid white;border-radius: 10px;background-color:#333;width:300px;}
+      p{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color:#00FFD4;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:700px;}
+      img {border: 5px solid #00FFD4;border-radius: 500px;}
+      a{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color:#F97B72;}
+      button{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color: white;font-style:bold;border:5px;border-radius: 20px;background-color: #333;width:100px;}
+      div {text-align: center;width: 532px;}
+      span {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color: white;font-style:bold;border:5px;border-radius: 10px;background-color: #111;width:100px}
+      /*span is the tag for the leftnav, make sure to limit the characters for the name to 15. Btw latest posts gonna be displayed in leftnav marked as "post1, post2 and post3"*/
+
+meta name=<"viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  margin: 0;
+  font-family: century gothic;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color:#00FFD4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00FFD4;
+  border:5px;
+  border-radius:10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F97B72;
+}
+
+
+.profileinfo{
+  float: center
+  overflow: hidden;
+  font-family: century gothic;
+  font-size:25px;
+  text-align: center;
+  border: 5px;
+  border-radius: 20px;
+  width: 100px;
+
+}
+
+.logo{
+  float: center
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  border-radius: 10px;
+
+}
+
+.tdopnav{
+    object-position: right;
+    position: right;
+    border-radius: 10px;
+    top: 0%;
+    color: #F97B72;
+    background-color: #FFA993;
+    width: 30%;
+    height: 80%;
+
+}
+
+.topnav {
+  position:absolute;
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  width: 200px;
+  height: 600px;
+  border: 5px solid #F97B72;
+  border-radius: 20px;
+  top: 0%;
+  right:10px;
+  background: #333;
+}
+
+.topnav a {
+  float: center;
+  color: pink;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.topnav a:hover {
+  background-color: #111;
+  color: palevioletred;
+  border: #111;
+  border-radius: 20px;
+}
+
+.topnav a.active {
+  background-color: palevioletred;
+  color: white;
+  border:0px solid palevioletred;
+  border-radius:20px;
+  width:50px;
+}
+
+.leftnav {
+  position:absolute;
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  width: 200px;
+  height: 600px;
+  border: 5px solid #F97B72;
+  border-radius: 20px;
+  top: 0%;
+  left:10px;
+  background: #333;
+}
+
+.leftnav a {
+  float: center;
+  color: pink;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.leftnav a:hover {
+  background-color: #111;
+  color: palevioletred;
+  border: #111;
+  border-radius: 20px;
+}
+
+.leftnav a.active {
+  background-color: palevioletred;
+  color: white;
+  border:0px solid palevioletred;
+  border-radius:20px;
+  width:50px;
+}
+
+</style>
+</head>
+<body>
+  <center><div class="logo">
+    <center>
+      <img src="bark-it.png" width="450" height="158"></a>
+    </center>
+    <br>
+    <right>
+      <div class="topnav">
+        <br>
+        <br>
+        <a href="index.html" ><button>Home</button></a>
+        <br>
+        <br>
+        <br>
+        <a  href="post.html"><button>Post</button></a>
+        <br>
+        <br>
+        <br>
+        <a class="active" href="about.html"><button>About</button></a>
+        <br>
+        <br>
+      </div>
+      
+      <br>
+      <div class="leftnav">
+        <br>
+        <br>
+        <a class="active" href="profile.html" ><button>Profile:</button></a>
+        <br>
+        <br>
+        <img src="default user profile picture.png"></img>
+        <br>
+        <span>[insert name]</span>
+        
+        <br>
+        <br>
+        <a class="active" href="post.html"><button>Latest Posts:</button></a>
+        <br>
+        <br>
+        <span>
+          [post1]
+          <br>
+          <br>
+          [post2]
+          <br>
+          <br>
+          [post3]
+        </span>
+        <br>
+        <br>
+        <br>
+        <a class="active" href="settings.html"><button>Settings</button></a>
+        <br>
+        <br>
+      </div>
+    </right>
+    
+    </div>
+    </style>
+</head>
+<body>
+  <center><h1>About</h1></center>
+    <center><h2>Welcome to Bark-it! A better Twitter.</h2></center>
+    
+    
+    <center><p><centre>The about section of the website, well just get to know some stuff about the website, lmk if this needs improvement.</center>
+</div>
+<style>
+    body {
+      background-image: url('barkitbg-new.jpg');background-attachment:fixed;overflow:scroll;background-size:cover;
+
+    }
+    </style>
+<center><h3><center>Well I only made this site bcs twitter is crap so I made my own version of it and also dogs are better than birds so bark-it ftw.</center></h3></center>
+<center>
+  <h4>
+    <center>
+      How to use:
+    </center>
+  </h4>
+</center> 
+<center>
+  <h5>
+    <center>
+      Well just press post and type stuff lol
+    </center>
+  </h5>
+</center> 
+<center><h6>Made by Megaboi
+  <br>
+  Help taken from BigJango, Finger Biter, Kalsep, and SkyKrye
+</h6></center>
+<center>
+  <h6>
+    <center>
+      <a href="https://wallpapercave.com/w/wp7106934">Background</a>
+    </center>
+  </h6>
+</center>
+<center><h6>(Page includes elements from W3Schools)</h6></center>
+</body>
+</html>
