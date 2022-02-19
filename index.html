@@ -1,192 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bark-it: Public Board</title>
+    <style>
+        h1{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:50px;color:#F97B72;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 30px;width:350px;}
+        h2{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#00FFD4;font-style:italic;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:700px;}
+        h3{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:300px;}
+        h4{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:300px;}
+        h5{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#FCFFB2;font-style:bold;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:300px;}
+        h6{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color: #FCFFB2;font-style: bold;text-align: center;border: 5px solid white;border-radius: 10px;background-color:#333;width:300px;}
+        p{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color:#00FFD4;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:700px;}
+        img {border: 5px solid #00FFD4;border-radius: 500px;}
+        a{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color:#F97B72;}
+        button{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color: white;font-style:bold;border:5px;border-radius: 20px;background-color: #333;width:100px;}
+        div {text-align: center;width: 532px;}
+        span {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color: white;font-style:bold;border:5px;border-radius: 10px;background-color: #111;width:100px}
+        /*span is the tag for the leftnav, make sure to limit the characters for the name to 15.
+        Btw latest posts gonna be displayed in leftnav marked as "post1, post2 and post3".
+        Also the profile picture's max resolution is gonna be 177x177
+        Also the "a href" tag in the "next page" button" needs to be filled, idk how you guys made it so that's for you */
+
+  meta name=<"viewport" content="width=device-width, initial-scale=1">
 <style>
 body {
-  background-image: linear-gradient(to left, black, dimgrey);
-  resize: vertical;
-  overflow: auto;
-  width: 90%;
-
-}
-.topbar {
-	position: sticky;
-	border-radius: 10px;
-	top: 0px;
-	background-color: #808080;
-	height: 300px;
-	width: 100px;
-  	background: linear-gradient(to right, dimgrey, #5E5E5E)
+  margin: 0;
+  font-family: century gothic;
 }
 
-.navbar{
-
-	border-radius: 10px;
-	top: 0%;
-	background-color: #6B6B6B;
-	width: 30%;
-	height: 80%;
-
-}
-.post {
-
-	left: 100%;
-	border-radius: 10px;
-	top: 100%;
-	background-color: #6B6B6B;
-	width: 69%;
-	height: 70%;
-	border-style: solid;
-	border-color: #6b6b6b;
-	border-width: 20px;
-	margin: 20px;
-
-	overflow: hidden;
-
-}
-.page {
-	border-radius: 10px;
-  background:#2e2d2d;
-  position: fixed;
-  height: 100%;
-  width: 95%;
-  display: flex;
-  margin-right:auto;
-  margin-top:0%;
-  overflow: auto;
-
-}
-.comment {
-	border-radius: 10px;
-	top: 100%;
-	background-color: #6B6B6B;
-	width: 400px;
-	height: 50%;
-	border-style: solid;
-	border-color: #6b6b6b;
-	border-width: 40px;
-	margin: 5px;
-	resize: vertical;
-	overflow-x: auto;
-}
-.name {
-	background-color: dimgrey;
-	height: auto;
-	border-radius: 10px;
-	border-color: #6B6B6B;
-	color: white;
-	width: 100%;
-	color: #b3b3b3;
-
-
-}
-.textpost {
-	background-color: dimgrey;
-	resize: none;
-	border-radius: 10px;
-	border-color: #6B6B6B;
-	color: white;
-	width: 100%;
-	color: #FFFFFF;
-	overflow: auto;
-	height: 50%;
-}
-
-h1 {
-	color: #b3b3b3;
-}
-
-p {
-	color: #b3b3b3;
-}
-input[type="text"]
-{
-    height:20px
-}
-a {
-  color: white;
-}
-button{
-	color: white;
-	background-color: darkgray;
-	border-radius: 10px;
-	width: 100px;
-	height: 50px;
-	right: 0%;
-  transition-duration: 0.2s;
-}
-
-button:hover {
-  background: #4F4F4F;
-}
-
-code{
-	color: #b3b3b3;
-	border-radius: 5px;
-	background-color: black;
-}
-
-@media only screen and (device-width: 1280px),
-only screen and (max-width:1280px) {
-.post {
-	font-size: 20px;
-
-	border-radius: 10px;
-
-
-	background-color: #6B6B6B;
-	width: 60%;
-	height: 400px;
-	border-style: solid;
-	border-color: #6b6b6b;
-	border-width: 20px;
-	margin: 20px;
-
-	overflow: hidden;
-
-
-}
-/* width */
 ::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
+  background-color:#00FFD4;
 }
 
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #00FFD4;
+  border:5px;
+  border-radius:10px;
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+::-webkit-scrollbar-track {
+  background: #F97B72;
 }
+
+.post{
+  position: static;
+  
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  color:white;
+  font-style: bold;
+  border:3px solid #00FFD4;
+  border-radius: 10px;
+  background-color:#333;
+  width:500px;
+  height:300px;
+  
+}
+
+
+
+
+.profileinfo{
+  float: center
+  overflow: hidden;
+  font-family: century gothic;
+  font-size:25px;
+  text-align: center;
+  border: 3px;
+  border-radius: 20px;
+  width: 100px;
+
+}
+
+.logo{
+  float: center
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  border-radius: 10px;
+
+}
+
+.tdopnav{
+    object-position: right;
+    position: right;
+    border-radius: 10px;
+    top: 0%;
+    color: #F97B72;
+    background-color: #FFA993;
+    width: 30%;
+    height: 80%;
+
+}
+
+.topnav {
+  position:absolute;
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  width: 200px;
+  height: 600px;
+  border: 5px solid #F97B72;
+  border-radius: 20px;
+  top: 0%;
+  right:10px;
+  background: #333;
+}
+
+.topnav a {
+  float: center;
+  color: pink;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.topnav a:hover {
+  background-color: #111;
+  color: palevioletred;
+  border: #111;
+  border-radius: 20px;
+}
+
+.topnav a.active {
+  background-color: palevioletred;
+  color: white;
+  border:0px solid palevioletred;
+  border-radius:20px;
+  width:50px;
+}
+
+.leftnav {
+  position:absolute;
+  overflow: hidden;
+  font-family: century gothic;
+  text-align: center;
+  width: 200px;
+  height: 600px;
+  border: 5px solid #F97B72;
+  border-radius: 20px;
+  top: 0%;
+  left:10px;
+  background: #333;
+}
+
+.leftnav a {
+  float: center;
+  color: pink;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.leftnav a:hover {
+  background-color: #111;
+  color: palevioletred;
+  border: #111;
+  border-radius: 20px;
+}
+
+.leftnav a.active {
+  background-color: palevioletred;
+  color: white;
+  border:0px solid palevioletred;
+  border-radius:20px;
+  width:50px;
+}
+.pageswitch {
+  bottom: 0%;
+  position: sticky;
+  
+}
+.pagebuttons {
+  width: 350px;
+  height: 50px;
+  background-color: dimgrey;
+}
+textarea {
+  background-color: #333;
+  color: whitesmoke;
+}
+}
+
 </style>
-<div class=page>
-<body>
-
-<head>
-<link rel="shortcut icon" href="./images/bark-it.png">
-<title>Bark-it - public board</title>
 </head>
-<div class=topbar>
+<body>
+  <center><div class="logo">
+    <center>
+      <img src="bark-it.png" width="450" height="158"></a>
+    </center>
+    </div></center>
 
-	<center>
+<br>
+<right>
+  <div class="topnav">
+    <br>
+    <br>
+    <a class="active" href="index.html" ><button>Home</button></a>
+    <br>
+    <br>
+    <br>
+    <a  href="post.html"><button>Post</button></a>
+    <br>
+    <br>
+    <br>
+    <a href="about.html"><button>About</button></a>
+    <br>
+    <br>
+  </div>
+  
+  <br>
+  <div class="leftnav">
+    <br>
+    <br>
+    <a class="active" href="profile.html" ><button>Profile:</button></a>
+    <br>
+    <br>
+    <img src="default user profile picture.png"></img>
+    <br>
+    <span>[insert name]</span>
+    
+    <br>
+    <br>
+    <a class="active" href="post.html"><button>Latest Posts:</button></a>
+    <br>
+    <br>
+    <span>
+      [post1]
+      <br>
+      <br>
+      [post2]
+      <br>
+      <br>
+      [post3]
+    </span>
+    <br>
+    <br>
+    <br>
+    <a class="active" href="settings.html"><button>Settings</button></a>
+    <br>
+    <br>
+  </div>
+</right>
 
-	<img src="./images/bark-it.png" width=100% class = "logo">
-	<h2><a href="/index"><button>home</button></a></h2>
-	<h2><a href="/post"><button>post</button></a></h2>
-	<h2><a href="/tutorial"><button>how2use&y</button></a></h2>
-	</center>
-	<center>
-
-	</center>
-</body>
 </div>
+    </style>
+</head>
+<body><style>
+    body {
+      background-image: url('barkitbg-new.jpg');background-attachment:fixed;overflow:scroll;background-size:cover;
 
+    }
+    </style>
+  
+<center>
 ^posts^
+<center><a href="[insert previous page]" class=pageswitch  style="left: 0%;"><button class=pagebuttons><-</button></a><a href="[insert next page]" class=pageswitch style="right: 0%;"><button class=pagebuttons>-></button></a></center>
 
-
-
-</div>
+</body>
+</html>
