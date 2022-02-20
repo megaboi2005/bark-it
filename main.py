@@ -12,7 +12,7 @@ def cutList(theList, n):
     return [theList[i * n:(i + 1) * n] for i in range((len(theList) + n - 1) // n)]
 
 def form(name, desc, location):
-	form = open('elements/form.html','r')
+	form = open('elements/login.html','r')
 	formout = form.read()
 	return formout.replace('{name}', name).replace('{location}', location).replace('{desc}', desc)
 
@@ -32,33 +32,38 @@ def getUsername(request):
     return request.rel_url.query['name']
 
 async def register(request):
+    indexFile = open('index.html','r').read()
     try:
         # Gets the name and password.
         name = request.rel_url.query['name']
         password = request.rel_url.query['pass']
         finalname = filter(name)
-        finalpass = str(f.encrypt(filter(password).encode()))
+        #finalpass = str(f.encrypt(filter(password).encode()))
         # Gets a list of existing users
         users = getData('json/users.json').keys()
         # Get current data and updates it
         data = getData('json/users.json')
-        data.update({finalname:{'password':finalpass, 'posts':[]}})
+        data.update({finalname:{'password':password, 'posts':[]}})
         # Stops users from making an account that already exists
         if name in users:
-            return web.Response(text='account exists', content_type='text/html')
+            formin = form('name','pass','register')
+            output = f'</p>Sorry this account is taken</p>{formin}'
+            return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
 
         # Adds the user
         else:
             userwrite = open('json/users.json','w')
             userwrite.write(json.dumps(data, indent=2))
             print('The user"'+name+'" was added.')
-            return web.Response(text='yay', content_type='text/html')
+            
+            return web.Response(text=indexFile.replace('^posts^','Account created'), content_type='text/html')
 
         return web.Response(text='something went wrong sorry', content_type='text/html')
 
     except KeyError:
         formin = form('name','pass','register')
-        return web.Response(text=formin, content_type='text/html')
+        
+        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
 
 async def post(request):
     indexFile = open('index.html','r').read()
