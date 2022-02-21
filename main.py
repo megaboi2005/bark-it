@@ -2,7 +2,9 @@ import json
 from aiohttp import web
 from os.path import exists
 from cryptography.fernet import Fernet
-
+from pprint import pformat
+response = web.HTTPSeeOther('/')
+indexFile = open('index.html','r').read()
 def getPost(id):
     '''Gets the post that has the post id'''
     return(json.load(open("json/posts.json"))[str(id)])
@@ -12,7 +14,7 @@ def cutList(theList, n):
     return [theList[i * n:(i + 1) * n] for i in range((len(theList) + n - 1) // n)]
 
 def form(name, desc, location):
-	form = open('elements/form.html','r')
+	form = open('elements/login.html','r')
 	formout = form.read()
 	return formout.replace('{name}', name).replace('{location}', location).replace('{desc}', desc)
 
@@ -28,37 +30,49 @@ def filter(var):
         ).replace('<', '&lt;'
         ).replace('>', '&gt;').strip()
 
-def getUsername(request): 
+def getUsername(request):
     return request.rel_url.query['name']
 
+#pls help me find a different way
+def readcookie(request,var):
+    output = pformat(request)[13:-1].replace("'",'"')
+    loaded = json.loads(output)
+    return loaded[var]
+
 async def register(request):
+    
     try:
+        
         # Gets the name and password.
         name = request.rel_url.query['name']
         password = request.rel_url.query['pass']
         finalname = filter(name)
-        finalpass = str(f.encrypt(filter(password).encode()))
+        #finalpass = str(f.encrypt(filter(password).encode()))
         # Gets a list of existing users
         users = getData('json/users.json').keys()
         # Get current data and updates it
         data = getData('json/users.json')
-        data.update({finalname:{'password':finalpass, 'posts':[]}})
+        data.update({finalname:{'password':password, 'posts':[]}})
         # Stops users from making an account that already exists
         if name in users:
-            return web.Response(text='account exists', content_type='text/html')
+            formin = form('name','pass','register')
+            output = f'</p>Sorry this account is taken</p>{formin}'
+            return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
 
         # Adds the user
         else:
             userwrite = open('json/users.json','w')
             userwrite.write(json.dumps(data, indent=2))
             print('The user"'+name+'" was added.')
-            return web.Response(text='yay', content_type='text/html')
+            
+            return web.Response(text=indexFile.replace('^posts^','Account created'), content_type='text/html')
 
         return web.Response(text='something went wrong sorry', content_type='text/html')
 
     except KeyError:
         formin = form('name','pass','register')
-        return web.Response(text=formin, content_type='text/html')
+        
+        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
 
 async def post(request):
     indexFile = open('index.html','r').read()
@@ -69,7 +83,7 @@ async def post(request):
 
         if name == '' or post == '' or title == '':
             return web.Response(text=indexFile.replace('^posts^', 'You can\'t do that.'), content_type='text/html')
-        
+
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys()))+1
         postfile = open('json/posts.json', 'w')
@@ -122,14 +136,36 @@ async def main(request):
     page = open("index.html").read().replace("^posts^", posts)
     return web.Response(text=page, content_type='text/html')
 
-# Generates the key if it doesn't exist
-if not exists('secret.key'):
-    key = Fernet.generate_key()
-    key_file = open('secret.key', 'wb')
-    key_file.write(key)
+async def login(request):
+    try:
+        name = request.rel_url.query['name']
+        password = request.rel_url.query['pass']
+        
+        users = getData('json/users.json')
+        readusers = users[name]["token"]
+        userpass = users[name]["password"]
+        if not password == userpass:
+            formin = form('name','pass','login')
+            return web.Response(text=indexFile.replace('^posts',f'<p>incorrect password</p>{formin}'), content_type='text/html')
+        response.cookies['auth'] = readusers
+        return response
+    except KeyError:
+        formin = form('name','pass','login')
+        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
+   
 
-key = open('secret.key', 'rb').read()
-f = Fernet(key)
+
+    
+    
+# Generates the key if it doesn't exist
+#if not exists('secret.key'):
+#    key = Fernet.generate_key()
+#    key_file = open('secret.key', 'wb')
+#    key_file.write(key)
+#    key_file.close()
+
+#key = open('secret.key', 'rb').read()
+#f = Fernet(key)
 
 # Starts the web app
 app = web.Application()
@@ -138,6 +174,7 @@ app.add_routes([
     web.get('/index', main),
     web.get('/', main),
     web.get('/post', post),
+    web.get('/login', login),
     web.static('/images', "elements", show_index=True)
 ])
 web.run_app(app)
