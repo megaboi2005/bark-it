@@ -1,6 +1,7 @@
 {
   "admin": {
-    "password": "",
-    "posts": []
+    "password": "test123",
+    "posts": [],
+    "token": "32472389047"
   }
 }
