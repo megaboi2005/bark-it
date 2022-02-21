@@ -2,7 +2,9 @@ import json
 from aiohttp import web
 from os.path import exists
 from cryptography.fernet import Fernet
-
+from pprint import pformat
+response = web.HTTPSeeOther('/')
+indexFile = open('index.html','r').read()
 def getPost(id):
     '''Gets the post that has the post id'''
     return(json.load(open("json/posts.json"))[str(id)])
@@ -31,9 +33,16 @@ def filter(var):
 def getUsername(request):
     return request.rel_url.query['name']
 
+#pls help me find a different way
+def readcookie(request,var):
+    output = pformat(request)[13:-1].replace("'",'"')
+    loaded = json.loads(output)
+    return loaded[var]
+
 async def register(request):
-    indexFile = open('index.html','r').read()
+    
     try:
+        
         # Gets the name and password.
         name = request.rel_url.query['name']
         password = request.rel_url.query['pass']
@@ -127,6 +136,27 @@ async def main(request):
     page = open("index.html").read().replace("^posts^", posts)
     return web.Response(text=page, content_type='text/html')
 
+async def login(request):
+    try:
+        name = request.rel_url.query['name']
+        password = request.rel_url.query['pass']
+        
+        users = getData('json/users.json')
+        readusers = users[name]["token"]
+        userpass = users[name]["password"]
+        if not password == userpass:
+            formin = form('name','pass','login')
+            return web.Response(text=indexFile.replace('^posts',f'<p>incorrect password</p>{formin}'), content_type='text/html')
+        response.cookies['auth'] = readusers
+        return response
+    except KeyError:
+        formin = form('name','pass','login')
+        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
+   
+
+
+    
+    
 # Generates the key if it doesn't exist
 #if not exists('secret.key'):
 #    key = Fernet.generate_key()
@@ -144,6 +174,7 @@ app.add_routes([
     web.get('/index', main),
     web.get('/', main),
     web.get('/post', post),
+    web.get('/login', login),
     web.static('/images', "elements", show_index=True)
 ])
 web.run_app(app)
