@@ -1,22 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bark-it: Public Board</title>
+    <title>Bark-it: Settings</title>
     <style>
-        h1{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#F97B72;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 30px;width:300px;}
+        h1{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:40px;color:#F97B72;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 30px;width:350px;}
         h2{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:30px;color:#00FFD4;font-style:italic;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:600px;}
+        h3{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:25px;color:#00FFD4;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 20px;width:450px;}
+        h4{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:1px;color: #FCFFB2;font-style: bold;text-align: center;border: 5px solid #00FFD4;border-radius: 5px;background-color:#333;width:700px;}
         h6{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:1px;color: #FCFFB2;font-style: bold;text-align: center;border: 5px solid #00FFD4;border-radius: 5px;background-color:#333;width:700px;}
-        p{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color:#00FFD4;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 25px;width:650px;}
+        p{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color:#00FFD4;text-align: center;background-color: #333;border:5px solid #F97B72;border-radius: 25px;width:400px;}
         img {border: 5px solid #00FFD4;border-radius: 500px;}
         a{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color:#F97B72;}
         button{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:15px;color: white;font-style:bold;border:5px;border-radius: 20px;background-color: #333;width:100px;}
         div {text-align: center;width: 532px;}
         span {font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;font-size:20px;color: white;font-style:bold;border:5px;border-radius: 10px;background-color: #111;width:100px}
-        /*span is the tag for the leftnav, make sure to limit the characters for the name to 15.
-        Btw latest posts gonna be displayed in leftnav marked as "post1, post2 and post3".
-        Also the profile picture's max resolution is gonna be 177x177
-        Also the "a href" tag in the "next page" button" needs to be filled, idk how you guys made it so that's for you 
-        ***UPDATE***: posts are now textareas instead of divs, thank me later (stolen from megaboi) */
+        /*
+        missing value: class="active" from topnav navbar*/
 
   meta name=<"viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -205,7 +204,7 @@ img:hover {
   <div class="topnav">
     <br>
     <br>
-    <a class="active" href="index.html" ><button>Home</button></a>
+    <a href="index.html" ><button>Home</button></a>
     <br>
     <br>
     <br>
@@ -252,13 +251,28 @@ img:hover {
   </div>
 </right>
 <center>
-<h6>
-<center><h1>Public Board</h1></center>
+<h4>
+<center><h1>Settings</h1></center>
 <center><h2>Welcome to Bark-it! A better Twitter.</h2></center>
 
 
-<center><p><centre><bold>The front page for Bark-it! Find posts here, all about many things like talking about that new game you got, fanfictions about random things, not amogus vents, meme posts, and posts totally not on controversial topics.</bold>.</p></center>
+<center><p><centre><bold>Change some settings and stuff for yourself lol</bold>.</p></center>
+</h4>
+<br>
+
+<h6>
+  <center>
+    <h3>
+      Show panels: <button>Y/N</button>
+      <br>
+      Left: <button>Y/N</button>
+      <br>
+      Right: <button>Y/N</button>
+    </h3>
+    
+  </center>
 </h6>
+
 </center>
 </div>
 </div>
@@ -266,15 +280,12 @@ img:hover {
 </head>
 <body><style>
     body {
-      background: url('barkitbg-new.jpg');background-attachment:fixed;overflow:scroll;background-size:cover;
+      background-image: url('barkitbg-new.jpg');background-attachment:fixed;overflow:scroll;background-size:cover;
 
     }
     </style>
 
 <center>
-^posts^
-
-<center><a href="[insert previous page]" class=pageswitch  style="left: 0%;"><button class=pagebuttons><-</button></a><a href="[insert next page]" class=pageswitch style="right: 0%;"><button class=pagebuttons>-></button></a></center>
 
 </body>
 </html> 
