@@ -45,7 +45,7 @@ body {
 
 .post{
   position: static;
-
+  
   font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 20px;
   color:white;
@@ -55,7 +55,7 @@ body {
   background-color:#333;
   width:500px;
   height:300px;
-
+  
 }
 
 
@@ -106,7 +106,6 @@ body {
   top: 0%;
   right:10px;
   background: #333;
-  transition-duration: 0.5s
 }
 
 .topnav a {
@@ -145,7 +144,6 @@ body {
   top: 0%;
   left:10px;
   background: #333;
-  transition-duration: 0.5s
 }
 
 .leftnav a {
@@ -174,39 +172,22 @@ body {
 .pageswitch {
   bottom: 0%;
   position: sticky;
-
+  
 }
 .pagebuttons {
   width: 350px;
   height: 50px;
   background-color: dimgrey;
 }
-.movenavs {
-  position: absolute;
-  top: 20px;
-  left: 220px;
-  width: 80px;
-  height: 60px;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  background: #F97B72;
-  transition-duration: 0.5s
-}
-
-.movenavs:hover {
-  background: #f26257;
-}
-
 textarea {
   background-color: #333;
   color: whitesmoke;
 }
 }
+
 </style>
-<script src="/images/script.js"></script>
 </head>
 <body>
-
   <center><div class="logo">
     <center>
       <img src="images/bark-it.png" width="450" height="158"></a>
@@ -215,9 +196,16 @@ textarea {
 
 <br>
 <right>
-  <div class="topnav">
+  <div class="leftnav">
     <br>
-    <br>
+  
+    
+  
+    <br> 
+    <a><button>^profile^</button></a>
+    <br> 
+    <br> 
+    <br> 
     <a class="active" href="/" ><button>Home</button></a>
     <br>
     <br>
@@ -229,57 +217,25 @@ textarea {
     <a href="about"><button>About</button></a>
     <br>
     <br>
+    <br>
+    <a href="register"><button>Register</button></a>
   </div>
+  
 
 
-  <br>
-  <div class="leftnav">
-    <br>
-    <br>
-    <a class="active" href="profile.html" ><button>Profile:</button></a>
-    <br>
-    <br>
-    <img src="images/default.png"></img>
-    <br>
-    <span>[insert name]</span>
 
-    <br>
-    <br>
-    <a class="active" href="post"><button>Latest Posts:</button></a>
-    <br>
-    <br>
-    <span>
-      [post1]
-      <br>
-      <br>
-      [post2]
-      <br>
-      <br>
-      [post3]
-    </span>
-    <br>
-    <br>
-    <br>
-    <a class="active" href="settings"><button>Settings</button></a>
-    <br>
-    <br>
-  </div>
-</right>
-<button class="movenavs" onclick="moveNav()">☰</button>
-</div>
-    </style>
-</head>
+
 <body><style>
     body {
       background-image: url('images/barkitbg-new.jpg');background-attachment:fixed;overflow:scroll;background-size:cover;
 
     }
     </style>
-
+  
 <center>
+
 ^posts^
 <center><a href="[insert previous page]" class=pageswitch  style="left: 0%;"><button class=pagebuttons><-</button></a><a href="[insert next page]" class=pageswitch style="right: 0%;"><button class=pagebuttons>-></button></a></center>
-
 
 </body>
 </html>

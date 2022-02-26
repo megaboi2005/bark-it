@@ -3,8 +3,12 @@ from aiohttp import web
 from os.path import exists
 from cryptography.fernet import Fernet
 from pprint import pformat
+from datetime import datetime
+import random
+from random import randrange
 response = web.HTTPSeeOther('/')
 indexFile = open('index.html','r').read()
+now = datetime.now()
 def getPost(id):
     '''Gets the post that has the post id'''
     return(json.load(open("json/posts.json"))[str(id)])
@@ -39,6 +43,19 @@ def readcookie(request,var):
     loaded = json.loads(output)
     return loaded[var]
 
+def loadindex(posts,request):
+    jsonfile = getData('json/users.json')
+    
+    output = pformat(request.cookies)[13:-1].replace("'",'"')
+    loaded = json.loads(output)
+    for a in jsonfile:
+        if jsonfile[a]["token"] == loaded["auth"]:
+            output = a
+            break
+    output = f'<a href=/login><button>{a}</button></a>'
+    return indexFile.replace('^posts^',posts).replace('^profile^',output)
+
+
 async def register(request):
     
     try:
@@ -49,10 +66,28 @@ async def register(request):
         finalname = filter(name)
         #finalpass = str(f.encrypt(filter(password).encode()))
         # Gets a list of existing users
-        users = getData('json/users.json').keys()
+        users = getData('json/users.json')
         # Get current data and updates it
+        month = datetime.now().month
+        d = datetime.now().day
+        h = now.strftime("%H")
+        m = now.strftime("%M")
+        s = now.strftime("%S")
+        jsonfile = getData('json/users.json')
+        
+        output = False
+        while output == False:
+            token = randrange(1,100000000000000000000)
+            for a in jsonfile:
+                if jsonfile[a]["token"] == token:
+                    output = False
+                    break
+                output = True
+        
+
+
         data = getData('json/users.json')
-        data.update({finalname:{'password':password, 'posts':[]}})
+        data.update({finalname:{'password':password, 'posts':[], 'token':token}})
         # Stops users from making an account that already exists
         if name in users:
             formin = form('name','pass','register')
@@ -132,9 +167,9 @@ async def main(request):
     {"<a href=/comments?id={id}><button>comments (don't work yet)</button></a>" if not currentPost["locked"] else ""}
   </br>
 </div>"""
-
-    page = open("index.html").read().replace("^posts^", posts)
-    return web.Response(text=page, content_type='text/html')
+   
+    
+    return web.Response(text=loadindex(posts,request), content_type='text/html')
 
 async def login(request):
     try:
