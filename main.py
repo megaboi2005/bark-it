@@ -38,24 +38,38 @@ def getUsername(request):
     return request.rel_url.query['name']
 
 #pls help me find a different way
-def readcookie(request,var):
+def readcookie(request,name):
     output = pformat(request)[13:-1].replace("'",'"')
     loaded = json.loads(output)
-    return loaded[var]
+    return loaded[name]
 
 def loadindex(posts,request):
     jsonfile = getData('json/users.json')
     
     output = pformat(request.cookies)[13:-1].replace("'",'"')
     loaded = json.loads(output)
-    for a in jsonfile:
-        if jsonfile[a]["token"] == loaded["auth"]:
-            output = a
-            break
+    try:
+        for a in jsonfile:
+            
+            if str(jsonfile[a]["token"]) in loaded["auth"]:
+                output = a
+                break
+    except KeyError:
+        a = 'login'
     output = f'<a href=/login><button>{a}</button></a>'
     return indexFile.replace('^posts^',posts).replace('^profile^',output)
 
+def getname(request):
 
+    jsonfile = getData('json/users.json')
+    
+    output = pformat(request.cookies)[13:-1].replace("'",'"')
+    loaded = json.loads(output)
+    for a in jsonfile:
+        if str(jsonfile[a]["token"]) == loaded["auth"]:
+            output = a
+            break
+    return a
 async def register(request):
     
     try:
@@ -112,7 +126,8 @@ async def register(request):
 async def post(request):
     indexFile = open('index.html','r').read()
     try:
-        name = filter(getUsername(request))
+        name = getname(request)
+
         content = filter(request.rel_url.query['post'])
         title = filter(request.rel_url.query['title'])
 
@@ -122,6 +137,7 @@ async def post(request):
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys()))+1
         postfile = open('json/posts.json', 'w')
+
         posts.update({newPostId:{"title":title, "author":name, "content":content, "likes":1, "locked":False, "comments":{}}})
         postfile.write(json.dumps(posts, indent=2))
         print(f"Name: '{name}', Title: '{title}'\nContent: {content}")
@@ -130,9 +146,10 @@ async def post(request):
     except:
         output = indexFile.replace('^posts^', '''
 <div class=post>
+
   <form action="/post">
     <label for="id">Title: </label><input type="text" id="title" name="title"><br>
-    <label for="id">Username: </label><input type="text" id="name" name="name"><br>
+    
     <label for="id">Content: </label><br>
     <textarea id="post" name="post" rows="4" cols="50"></textarea>
     </p><br><input type="submit" value="Submit">
@@ -141,6 +158,7 @@ async def post(request):
         return web.Response(text=output, content_type='text/html')
 
 async def main(request):
+
     try:
         page = int(request.rel_url.query['page'])
     except:
@@ -169,7 +187,7 @@ async def main(request):
 </div>"""
    
     
-    return web.Response(text=loadindex(posts,request), content_type='text/html')
+    return web.Response(text=loadindex(posts,request).replace('^left^',f'/?page={page-1}').replace('^right^',f'/?page={page+1}'), content_type='text/html')
 
 async def login(request):
     try:
