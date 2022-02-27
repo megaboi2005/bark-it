@@ -206,8 +206,10 @@ async def login(request):
         formin = form('name','pass','login')
         return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
    
-
-
+async def about(request):
+    about = open('elements/about.html','r').read()
+    
+    return web.Response(text=loadindex(about,request), content_type='text/html')
     
     
 # Generates the key if it doesn't exist
@@ -228,6 +230,7 @@ app.add_routes([
     web.get('/', main),
     web.get('/post', post),
     web.get('/login', login),
+    web.get('/about', about),
     web.static('/images', "elements", show_index=True)
 ])
 web.run_app(app)
