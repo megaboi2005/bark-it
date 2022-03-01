@@ -107,7 +107,15 @@ async def register(request):
             formin = form('name','pass','register')
             output = f'</p>Sorry this account is taken</p>{formin}'
             return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
-
+        
+        special_characters = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
+        password_numbers = "1234567890"
+        
+        if any(x not in password for x in special_characters) or any(x not in password in password_numbers) or password.len() <= 5:
+            formin = form('name','pass','register')
+            output = f'</p>Your password needs special characters, numbers, and be longer than 5 characters</p>{formin}'
+            return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
+        
         # Adds the user
         else:
             userwrite = open('json/users.json','w')
@@ -130,8 +138,10 @@ async def post(request):
 
         content = filter(request.rel_url.query['post'])
         title = filter(request.rel_url.query['title'])
-
-        if name == '' or post == '' or title == '':
+        
+        nsfw_words('cum')
+        
+        if name == '' or post == '' or title == '' or any(x in post for x in nsfw_words) or any(x in title for x in nsfw_words):
             return web.Response(text=indexFile.replace('^posts^', 'You can\'t do that.'), content_type='text/html')
 
         posts = getData("json/posts.json")
