@@ -3,7 +3,7 @@
 
 ## Plans
 - [x] Able to post .-.
-- [ ]  Accounts
+- [x]  Accounts
 - [ ]  2 factor authentication
 - [ ]  No exploits LOL
 - [ ]  User settings
