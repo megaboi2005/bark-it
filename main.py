@@ -1,4 +1,5 @@
 import json
+import base64
 from aiohttp import web
 from os.path import exists
 from cryptography.fernet import Fernet
@@ -111,7 +112,7 @@ async def register(request):
         special_characters = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
         password_numbers = "1234567890"
         
-        if not any(x in special_characters for x in password_numbers) or not any(x in password_numbers in password) or len(password) <= 5:
+        if not any(x in special_characters for x in password) or len(password) <= 5 or not any(y in password_numbers for y in password):
             formin = form('name','pass','register')
             output = f'</p>Your password needs special characters, numbers, and be longer than 5 characters</p>{formin}'
             return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
@@ -139,9 +140,33 @@ async def post(request):
         content = filter(request.rel_url.query['post'])
         title = filter(request.rel_url.query['title'])
         
-        nsfw_words('cum')
+
+        banned_word = ['eWVz']
+        splitPost = post.split(' ');
+        splitTitle = title.split(' ');
         
-        if name == '' or post == '' or title == '' or any(x in post for x in nsfw_words) or any(x in title for x in nsfw_words):
+        def checkBanned(postVariable):
+            for x in banned_word:
+                if x in postVariable:
+                    return web.Response(text=indexFile.replace('^posts^', 'A word in your post is banned for NSFW.'), content_type = 'text/html');
+        
+        for j in splitPost:
+            j_bytes = j.encode('ascii')
+            base64_bytes = base64.b64encode(j_bytes)
+            j_base64 = base64_bytes.decode('ascii')
+            
+            checkBanned(j_base64);
+            
+                    
+        for t in splitTitle:
+            t_bytes = t.encode('ascii')
+            tbase64_bytes = tbase64.b64encode(t_bytes)
+            t_base64 = tbase64_bytes.decode('ascii')
+            
+            checkBanned(t_base64);
+
+        
+        if name == '' or post == '' or title == '':
             return web.Response(text=indexFile.replace('^posts^', 'You can\'t do that.'), content_type='text/html')
 
         posts = getData("json/posts.json")
