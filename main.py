@@ -111,7 +111,7 @@ async def register(request):
         special_characters = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
         password_numbers = "1234567890"
         
-        if any(x not in password for x in special_characters) or any(x not in password in password_numbers) or password.len() <= 5:
+        if not any(x in special_characters for x in password_numbers) or not any(x in password_numbers in password) or len(password) <= 5:
             formin = form('name','pass','register')
             output = f'</p>Your password needs special characters, numbers, and be longer than 5 characters</p>{formin}'
             return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
