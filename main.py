@@ -19,9 +19,9 @@ def cutList(theList, n):
     return [theList[i * n:(i + 1) * n] for i in range((len(theList) + n - 1) // n)]
 
 def form(name, desc, location):
-	form = open('elements/login.html','r')
-	formout = form.read()
-	return formout.replace('{name}', name).replace('{location}', location).replace('{desc}', desc)
+    form = open('elements/login.html','r')
+    formout = form.read()
+    return formout.replace('{name}', name).replace('{location}', location).replace('{desc}', desc)
 
 def getData(file):
     '''Gets the json data from {file}'''
@@ -136,13 +136,11 @@ async def post(request):
     indexFile = open('index.html','r').read()
     try:
         name = getname(request)
-
         content = filter(request.rel_url.query['post'])
         title = filter(request.rel_url.query['title'])
         
-
-        banned_word = ['eWVz']
-        splitPost = post.split(' ');
+        banned_word = ['Y3Vt']
+        splitPost = content.split(' ');
         splitTitle = title.split(' ');
         
         def checkBanned(postVariable):
@@ -160,28 +158,24 @@ async def post(request):
                     
         for t in splitTitle:
             t_bytes = t.encode('ascii')
-            tbase64_bytes = tbase64.b64encode(t_bytes)
+            tbase64_bytes = base64.b64encode(t_bytes)
             t_base64 = tbase64_bytes.decode('ascii')
             
             checkBanned(t_base64);
-
         
         if name == '' or post == '' or title == '':
             return web.Response(text=indexFile.replace('^posts^', 'You can\'t do that.'), content_type='text/html')
-
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys()))+1
         postfile = open('json/posts.json', 'w')
-
         posts.update({newPostId:{"title":title, "author":name, "content":content, "likes":1, "locked":False, "comments":{}}})
         postfile.write(json.dumps(posts, indent=2))
         print(f"Name: '{name}', Title: '{title}'\nContent: {content}")
         return web.Response(text='<meta http-equiv="Refresh" content="0; url=/" />',content_type='text/html')
-
-    except:
+    
+    except KeyError:
         output = indexFile.replace('^posts^', '''
 <div class=post>
-
   <form action="/post">
     <label for="id">Title: </label><input type="text" id="title" name="title"><br>
     
@@ -268,5 +262,4 @@ app.add_routes([
     web.get('/about', about),
     web.static('/images', "elements", show_index=True)
 ])
-web.run_app(app)
-
+web.run_app(app,port=1000)
