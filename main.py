@@ -247,7 +247,6 @@ async def about(request):
 #    key_file = open('secret.key', 'wb')
 #    key_file.write(key)
 #    key_file.close()
-
 #key = open('secret.key', 'rb').read()
 #f = Fernet(key)
 
@@ -262,4 +261,4 @@ app.add_routes([
     web.get('/about', about),
     web.static('/images', "elements", show_index=True)
 ])
-web.run_app(app,port=1000)
+web.run_app(app,port=8080)
