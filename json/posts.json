@@ -1,0 +1,42 @@
+{
+  "0": {
+    "title": "Welcome to Bark-it.",
+    "author": "Bark-it",
+    "content": "Welcome to the worst social media ever consisting of the worst security and the second worst user base (first goes to twitter.)",
+    "likes": 1,
+    "locked": true,
+    "comments": {}
+  },
+  "1": {
+    "title": "bruh",
+    "author": "megaboi",
+    "content": "bruh",
+    "likes": 1,
+    "locked": false,
+    "comments": {}
+  },
+  "2": {
+    "title": "bruh1",
+    "author": "megaboi",
+    "content": "bruh",
+    "likes": 1,
+    "locked": false,
+    "comments": {}
+  },
+  "3": {
+    "title": "bruh2",
+    "author": "megaboi",
+    "content": "bruh",
+    "likes": 1,
+    "locked": false,
+    "comments": {}
+  },
+  "4": {
+    "title": "Welcome to Bark-it.",
+    "author": "TESTIFICATE",
+    "content": "Hello world",
+    "likes": 1,
+    "locked": false,
+    "comments": {}
+  }
+}
