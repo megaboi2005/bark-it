@@ -18,3 +18,7 @@ The old code sucked so I thought I'd rewrite it.
 - Thanks to BigJango for taking it upon themself to rewrite all the old features and optimizing my crappy code.
 - Thanks to TheShadowDragon for using his javascript skills
 - Thanks to SkyKrye for making the main page
+
+# How to run
+1. `pip install flask`
+2. open directory and type `flask run` and hit enter
