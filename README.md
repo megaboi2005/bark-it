@@ -1,4 +1,8 @@
-![LOGO](/images/bark-it.png)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/megaboi2005/bark-it/main/images/bark-it.png" />
+</p>
+
 <h1 align="center">Bark-IT</h1>
 <p align="center">I made this because twitter sucks also birds suck dogs better so bark-it ftw </p>
 
