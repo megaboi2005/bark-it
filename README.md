@@ -7,8 +7,8 @@
 <p align="center">I made this because twitter sucks also birds suck dogs better so bark-it ftw </p>
 
 ## Plans
-- [x] Able to post .-.
-- [x]  Accounts
+- [ ] Able to post .-.
+- [ ]  Accounts
 - [ ]  2 factor authentication
 - [ ]  No exploits LOL
 - [ ]  User settings
