@@ -1,0 +1,148 @@
+<style>
+	body {
+		background-color: #282929;
+				color: white;
+		font-family: monospace;
+	}
+	.post {
+		background-color: #282929;
+		transition: 100ms;
+		margin-bottom: 10px;
+		border: solid;
+		border-radius: 10px;
+		border-width: 2px;
+		border-color: #F97B72;
+		font-family: monospace;
+		
+		width: 500px;
+	}
+	.post:hover {
+		border-width: 5px;
+		border-color: #FF5A51;
+		width: 40%;
+		transition: 100ms;
+	}
+	.sidebar {
+		transition: 100ms;
+		position: absolute;
+		left: 2%;
+		border: solid;
+		border-radius: 10px;
+		border-width: 2px;
+		border-color: #F97B72;
+		font-family: monospace;
+		width: 150px;
+		height: auto;
+	}
+	.pageswitch {
+	  bottom: 0%;
+	  position: sticky;
+	  width: 75px;
+	  
+	}
+	}
+	.pagebuttons {
+		width: 75px;
+		height: 50px;
+		background-color: dimgrey;
+		bottom: 20%;
+		border-radius: 10px;
+		border-width: 2px;
+		border-color: #F97B72;
+	}
+	.logo {
+		border: none;
+		width: 150px;
+		border: none;
+		border-radius: 10px;
+		transition: 100ms;
+		
+	}
+	.logo:hover {
+		border: none;
+		background-color: #1c1c1c;
+		width: 145px;
+		border: none;
+		border-radius: 10px;
+		transition: 100ms;
+	}
+	.movenavs {
+		position: absolute;
+		width: 50px;
+
+		
+		transition-duration: 0.5s
+	}
+
+.movenavs:hover {
+  background: #f26257;
+  width: 70px;
+}
+.sidebutton {
+
+}
+	button {
+		background-color: #282929;
+		width: 150px;
+		height: 100px;
+		color: white;
+		border: none;
+		border-radius: 10px;
+		transition: 100ms;
+	}
+	button:hover {
+		background-color: #1c1c1c;
+		width: 175px;
+		height: 100px;
+		color: white;
+		border: none;
+		border-radius: 10px;
+		transition: 100ms;
+	}
+	textarea {
+		background-color: #282929;
+		width: 80%;
+		height: auto;
+		color: white;
+		border-radius:5px;
+		resize: none;
+	}
+
+
+
+</style>
+<script src="/static/script.js"></script>
+
+<div class=sidebar id=sidebar>
+	
+
+	<a class="active" href="/" ><img id=logo class=logo src=/images/bark-it-small.png></a>
+	<button class="movenavs" id=movenav onclick="moveNav()"> &#x2630;</button>
+	
+    <br>
+	<a></a>
+	<br>
+    <a class=sidebutton href="/sendpost"><button>Post</button></a>
+    <br>
+
+   
+    <a class=sidebutton href="/about"><button>About</button></a>
+    <br>
+    <a class=sidebutton href="/register"><button>Register</button></a>
+    <br>
+    
+    <br>
+</div>
+<center>
+	<p>{{ posts|safe }}</p>
+	<a href="^left^" class=pageswitch><button class=pagebuttons><-</button></a>
+    <a href="^right^" class=pageswitch><button class=pagebuttons>-></button></a>
+    
+
+<br>
+^render^
+</center>
+
+
+</body>
+</html>
