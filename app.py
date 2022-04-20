@@ -39,7 +39,7 @@ def main(name=None):
 
 
 
-@app.route("/images/<name>")
+@app.route("/images/<name>/")
 def images(name):
 	try:
 		return send_from_directory("images", name, as_attachment=True, download_name="barkit.png")
@@ -47,7 +47,7 @@ def images(name):
 	except FileNotFoundError:
 		abort(404)
 
-@app.route("/posts/<page>")
+@app.route("/posts/<page>/")
 def posts(page):
 	start = time()
 	posts = genposts(page)
@@ -56,7 +56,7 @@ def posts(page):
 	processing_time = end - start
 	return resp.replace('^render^',str(processing_time)).replace('^right^',str(int(page)+1)).replace('^left^',str(int(page)-1))
 # api
-@app.route("/postget/<id>")
+@app.route("/postget/<id>/")
 def postget(id):
 	
 	try:
@@ -65,11 +65,11 @@ def postget(id):
 	except FileNotFoundError:
 		abort(404)
 
-@app.route("/comments/<id>")
+@app.route("/comments/<id>/")
 def comments(id):
 	return render_template('index.html', posts=genpost(id))
 
-@app.route("/sendpost", methods = ['GET', 'POST', 'DELETE'])
+@app.route("/sendpost"/, methods = ['GET', 'POST', 'DELETE'])
 def user():
 	if request.method == 'POST':
 		data = ImmutableMultiDict(request.form)
