@@ -1,17 +1,17 @@
 <script>
 let xhr = new XMLHttpRequest();
-var data
-var title
-var content
+var data;
+var title;
+var content;
 xhr.open("POST", "sendpost");
 xhr.setRequestHeader("Accept", "application/json");
 xhr.setRequestHeader("Content-Type", "application/json");
 xhr.onload = () => console.log(xhr.responseText);
 function send() {
-	title = document.getElementById("title").value
-	content = document.getElementById("content").value
+	title = document.getElementById("title").value;
+	content = document.getElementById("content").value;
 	//data = `{"title": "`+title+`","token": "Bark-it","content":"`+content+`",}`
-	data = `{"title": "Welcome to Bark-it.","token": "Bark-it","content": "Hello world"}`
+	data = `{"title": "Welcome to Bark-it.","token": "Bark-it","content": "Hello world"}`;
 	xhr.send(data);
 }
 </script>
