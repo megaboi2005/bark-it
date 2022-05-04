@@ -45,6 +45,8 @@ def genpost(id):
         .replace("^title^", postload["title"])
         .replace("^content^", postload["content"])
         .replace("{PostID}", id)
+        .replace("^right^",f"/posts/{id-1}")
+        .replace("^left^",f"/posts/{id-1}")
     )
 
 
