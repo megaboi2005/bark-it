@@ -92,8 +92,8 @@ def posts(page):
     processing_time = end - start
     return (
         resp.replace("^render^", str(processing_time))
-        .replace("^right^", str(int(page) + 1))
-        .replace("^left^", str(int(page) - 1))
+        .replace("^right^", f"/posts/{str(int(page) + 1)}")
+        .replace("^left^", f"posts/{str(int(page) - 1)}")
     )
 
 
@@ -122,6 +122,7 @@ def user():
         title = data["title"]
         token = data["token"]
         content = data["content"]
+        
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys())) + 1
         postfile = open("json/posts.json", "w")
@@ -139,7 +140,7 @@ def user():
         )
         postfile.write(json.dumps(posts, indent=2))
         print(f"Name: 'TESTIFICATE', Title: '{title}'\nContent: {content}")
-        return f"{title} {content}"
+        return "ping"
 
     elif request.method == "GET":
         return render_template("sendpost.html")
