@@ -93,7 +93,7 @@ def posts(page):
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", f"/posts/{str(int(page) + 1)}")
-        .replace("^left^", f"posts/{str(int(page) - 1)}")
+        .replace("^left^", f"/posts/{str(int(page) - 1)}")
     )
 
 
@@ -115,14 +115,15 @@ def comments(id):
 
 @app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
 def user():
-    if request.method == "POST":
-        data = ImmutableMultiDict(request.form)
-        print(request.form)
+    if request.method == "GET":
 
-        title = data["title"]
-        token = data["token"]
-        content = data["content"]
-        
+        title = request.args.get('title')
+        content = request.args.get('post')
+        print(title)
+        print(content)
+        if not title or not content:
+            return render_template("sendpost.html")
+        token = "0"
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys())) + 1
         postfile = open("json/posts.json", "w")
@@ -140,12 +141,16 @@ def user():
         )
         postfile.write(json.dumps(posts, indent=2))
         print(f"Name: 'TESTIFICATE', Title: '{title}'\nContent: {content}")
-        return "ping"
+        return '<meta http-equiv="Refresh" content="0; url=/" />'
 
-    elif request.method == "GET":
-        return render_template("sendpost.html")
+
     else:
         return f"{request.method} requests don't work on this url"
-
+@app.route("/login/")
+def login():
+    name = request.args.get('name')
+    password = request.args.get('pass')
+    if not title or not content:
+        return "notfinished"
 if __name__ == "__main__":
     app.run("0.0.0.0", 8080)
