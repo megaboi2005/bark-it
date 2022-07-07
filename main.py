@@ -107,7 +107,7 @@ async def register(request):
         if name in users:
             formin = form('name','pass','register')
             output = f'</p>Sorry this account is taken</p>{formin}'
-            return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
+            return web.Response(text=loadindex(output,request), content_type='text/html')
         
         special_characters = "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"
         password_numbers = "1234567890"
@@ -115,7 +115,7 @@ async def register(request):
         if not any(x in special_characters for x in password) or len(password) <= 5 or not any(y in password_numbers for y in password):
             formin = form('name','pass','register')
             output = f'</p>Your password needs special characters, numbers, and be longer than 5 characters</p>{formin}'
-            return web.Response(text=indexFile.replace('^posts^',output), content_type='text/html')
+            return web.Response(text=loadindex("output",request), content_type='text/html')
         
         # Adds the user
         else:
@@ -123,14 +123,14 @@ async def register(request):
             userwrite.write(json.dumps(data, indent=2))
             print('The user"'+name+'" was added.')
             
-            return web.Response(text=indexFile.replace('^posts^','Account created'), content_type='text/html')
+            return web.Response(text=loadindex("Account created",request), content_type='text/html')
 
         return web.Response(text='something went wrong sorry', content_type='text/html')
 
     except KeyError:
         formin = form('name','pass','register')
         
-        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
+        return web.Response(text=loadindex(formin,request), content_type='text/html')
 
 async def post(request):
     indexFile = open('index.html','r').read()
@@ -174,7 +174,7 @@ async def post(request):
         return web.Response(text='<meta http-equiv="Refresh" content="0; url=/" />',content_type='text/html')
     
     except KeyError:
-        output = indexFile.replace('^posts^', '''
+        output = loadindex("^posts^",request).replace('^posts^', '''
 <div class=post>
   <form action="/post">
     <label for="id">Title: </label><input type="text" id="title" name="title"><br>
@@ -228,12 +228,12 @@ async def login(request):
         userpass = users[name]["password"]
         if not password == userpass:
             formin = form('name','pass','login')
-            return web.Response(text=indexFile.replace('^posts',f'<p>incorrect password</p>{formin}'), content_type='text/html')
+            return web.Response(text=loadindex("<p>incorrect password</p>{formin}",request), content_type='text/html')
         response.cookies['auth'] = readusers
         return response
     except KeyError:
         formin = form('name','pass','login')
-        return web.Response(text=indexFile.replace('^posts',formin), content_type='text/html')
+        return web.Response(text=loadindex(formin,request), content_type='text/html')
    
 async def about(request):
     about = open('elements/about.html','r').read()
