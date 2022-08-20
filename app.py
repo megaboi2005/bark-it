@@ -10,7 +10,7 @@ global post
 
 post = open("templates/post.html", "r").read()
 app = Flask(__name__)
-app.secret_key = b'secretkey'
+app.secret_key = b'aodhukasdhuiladhiouladhuioadhukladhkuashduklahi8'
 
 def loadjson():
     return open("json/posts.json", "r").read()
@@ -47,16 +47,7 @@ def genposts(page):
     return output
 
 
-def genpost(id):
-    postload = json.loads(open("json/posts.json", "r").read())[id]
-    return (
-        post.replace("^user^", postload["author"])
-        .replace("^title^", postload["title"])
-        .replace("^content^", postload["content"])
-        
-        .replace("^right^",f"/posts/{id-1}")
-        .replace("^left^",f"/posts/{id-1}")
-    )
+
 
 
 def getData(file):
@@ -103,10 +94,15 @@ def posts(page):
     resp = render_template("index.html", posts=posts)
     end = time()
     processing_time = end - start
+    try:
+        name = session["name"]
+    except:
+        name = "Login"
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", f"/posts/{str(int(page) + 1)}")
         .replace("^left^", f"/posts/{str(int(page) - 1)}")
+        .replace("^profile^", name)
     )
 
 
@@ -117,13 +113,14 @@ def postget(id):
     try:
         return loadjson()[id]
 
-    except FileNotFoundError:
-        abort(404)
+    except KeyError:
+        return "unknown post"
 
 
 @app.route("/comments/<id>/")
 def comments(id):
-    return render_template("index.html", posts=genpost(id))
+    post = loadjson()[id]
+    return render_template("index.html", posts="lol no comments yet")
 
 
 @app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
@@ -144,7 +141,7 @@ def user():
         <input type="text" id="id1" name="title">
         <br>
         <label for="id2">Content  </label>
-        <input type="text" id="id2" name="post">
+        <textarea id="post" name="post" rows="4" cols="50"></textarea>
         <br>
         <input type="submit" value="Submit">
     </form>
@@ -174,9 +171,9 @@ def user():
             )
             postfile.write(json.dumps(posts, indent=2))
             print(f"Name: {sessname}, Title: '{title}'\nContent: {content}")
-            return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
+            return '<meta http-equiv="Refresh" content="0; url=/" />'
         except:
-            return '<meta http-equiv="Refresh" content="0"; url=/sendpost" />'
+            return '<meta http-equiv="Refresh" content="0"; url=/" />'
 
     else:
         return f"{request.method} requests don't work on this url"
@@ -189,7 +186,7 @@ def login():
             <input type="text" id="id1" name="name">
             <br>
             <label for="id2">Password  </label>
-            <input type="text" id="id2" name="pass">
+            <input type="password" id="id2" name="pass">
             <br>
             <input type="submit" value="Submit">
         </form>
@@ -209,7 +206,7 @@ def login():
                 session['name'] = name
             else:
                 return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","<p>incorrect username or password</p> "+form)
-            return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","<p>incorrect username or password</p> "+form)
+            return '<meta http-equiv="Refresh" content="0; url=/" />'
         except:
             return '<meta http-equiv="Refresh" content="0; url=/" />'
     if not title or not content:
@@ -228,7 +225,7 @@ def register():
             <input type="text" id="id1" name="name">
             <br>
             <label for="id2">Password  </label>
-            <input type="text" id="id2" name="pass">
+            <input type="password" id="id2" name="pass">
             <br>
             <input type="submit" value="Submit">
         </form>
@@ -248,7 +245,17 @@ def register():
     userread.update({name : {"password" : password}})
     userwrite.write(json.dumps(userread, indent=2))
 
-    return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form)
+    return '<meta http-equiv="Refresh" content="0; url=/" />'
+
+
+@app.route("/about")
+def aboutpage():
+    about = open("templates/about.html","r").read()
+    try:
+        name = session["name"]
+    except:
+        name = "Login"
+    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 8080)
