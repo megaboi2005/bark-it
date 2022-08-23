@@ -30,4 +30,4 @@ The old code sucked so I thought I'd rewrite it.
 ## How to run
 
 1. `pip3 install flask`
-2. Open directory and type `flask run` or `python3 app.py` and hit enter
+2. Open directory and type `flask run` or `python3 app.py` and hit enter. Alternatively, if you wish to run the code in debug mode, type `flask --app app.py --debug run` (Allows you to speed up checking process instead of restarting a lot).

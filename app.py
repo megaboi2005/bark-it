@@ -8,6 +8,7 @@ from werkzeug.datastructures import ImmutableMultiDict
 from flask import session
 global post
 
+loggedin = False
 post = open("templates/post.html", "r").read()
 app = Flask(__name__)
 app.secret_key = b'aodhukasdhuiladhiouladhuioadhukladhkuashduklahi8'
@@ -67,7 +68,10 @@ def main(name=None):
     try:
         name = session["name"]
     except:
-        name = "Login"
+        if loggedin == False:
+            name = "Login/Register"
+        else:
+            name = username
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", "/posts/1")
@@ -97,7 +101,10 @@ def posts(page):
     try:
         name = session["name"]
     except:
-        name = "Login"
+        if loggedin == False:
+            name = "Login/Register"
+        else:
+            name = username
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", f"/posts/{str(int(page) + 1)}")
@@ -129,6 +136,10 @@ def user():
         try:
             sessname = session["name"]
         except:
+            if loggedin == False:
+                sessname = "Login/Register"
+            else:
+                sessname = username
             return open("templates/index.html","r").read().replace("^profile^","Login").replace("{{ posts|safe }}","not logged in") 
         title = request.args.get('title')
         content = request.args.get('post')
@@ -149,7 +160,10 @@ def user():
             try:
                 name = session["name"]
             except:
-                name = "Login"
+                if loggedin == False:
+                    name = "Login/Register"
+                else:
+                    name = username
                 return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","not logged in") 
             return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form) 
         try:  
@@ -177,8 +191,25 @@ def user():
 
     else:
         return f"{request.method} requests don't work on this url"
+
+@app.route("/logreg/", methods=['GET', 'POST'])
+def logreg():
+    about = open("templates/logreg.html","r").read()
+    try:
+        name = session["name"]
+    except:
+        if loggedin == False:
+            name = "Login/Register"
+        else:
+            name = username
+    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
+        
+
+
 @app.route("/login/")
 def login():
+    global loggedin
+    global username
     form = """
     <div class=post>
         <form action="/login">
@@ -197,7 +228,10 @@ def login():
     try:
         sessname = session["name"]
     except:
-        sessname = "Login"
+        if loggedin == False:
+            sessname = "Login/Register"
+        else:
+            sessname = username
     if name == None or password == None:
         return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form)
     else:
@@ -211,13 +245,20 @@ def login():
             return '<meta http-equiv="Refresh" content="0; url=/" />'
     if not title or not content:
         return "notfinished"
-
+    loggedin = True
+    username = name
 @app.route("/register/")
 def register():
+    global username
+    global loggedin
+    loggedin = False
     try:
         sessname = session["name"]
     except:
-        sessname = "Login"
+        if loggedin == False:
+            sessname = "Login/Register"
+        else:
+            sessname = name
     form = """
     <div class=post>
         <form action="/register">
@@ -230,7 +271,6 @@ def register():
             <input type="submit" value="Submit">
         </form>
     </div>"""
-    
     userread = json.loads(open("json/users.json","r").read())
     name = request.args.get('name')
     password = request.args.get('pass')
@@ -244,6 +284,8 @@ def register():
     userwrite = open("json/users.json","w")
     userread.update({name : {"password" : password}})
     userwrite.write(json.dumps(userread, indent=2))
+    loggedin = True
+    username = name
 
     return '<meta http-equiv="Refresh" content="0; url=/" />'
 
@@ -254,8 +296,28 @@ def aboutpage():
     try:
         name = session["name"]
     except:
-        name = "Login"
+        if loggedin == False:
+            name = "Login"
+        else:
+            name = username
+    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
+
+@app.route("/settings")
+def userpage():
+    if loggedin == True:
+        about = open("templates/404.html","r").read()
+    else:
+        about = open("templates/settings.html","r").read()
+    try:
+        name = session["name"]
+    except:
+        if loggedin == False:
+            name = "Login/Register"
+        else:
+            name = username
     return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 8080)
+
+
