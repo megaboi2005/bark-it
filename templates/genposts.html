@@ -1,0 +1,70 @@
+<div class=posts id=posts>
+<div id="wrapper" style="height: 500px; overflow: auto;">
+  <div id="content"> </div>
+</div>
+</div>
+<script type="text/javascript">
+
+var wrapper, content, test;
+var more = '<div style="height:1000px; background:#000000;"></div>';
+var nullcheck = false
+var postvar
+function getcount() {
+  let xmlHttpReq = new XMLHttpRequest();
+  xmlHttpReq.open("GET", "/postcount", false);
+  xmlHttpReq.send(null);
+  postvar = Number(xmlHttpReq.responseText) - 1
+  console.log(postvar)
+  
+}
+document.addEventListener("DOMContentLoaded", function() {
+  getcount();
+});
+
+function scroller() {
+    console.log(postvar)
+    if (nullcheck == false) {
+
+    if (wrapper.scrollTop + wrapper.offsetHeight + 10 > content.offsetHeight) {
+      for (let i=0; i<3; i++){
+          if (nullcheck == true) {
+            break
+          }
+          let xmlHttpReq = new XMLHttpRequest();
+          xmlHttpReq.open("GET", "/postget/"+postvar, false); 
+          xmlHttpReq.send(null);
+        if (xmlHttpReq.responseText !== "null") {
+          console.log(nullcheck)
+          var postarray = JSON.parse(xmlHttpReq.responseText)
+        
+          content.innerHTML += `<center><div class=post><textarea class=name rows=\"2\" readonly>Posted by {{user}}</textarea><br><textarea class=name rows="2"   readonly>{{title}}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><a href=/comments/{PostID}><button>Comments ( WIP)</button>
+            </a></br></div> </center>`.replace("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]); 
+          postvar-=1
+        } else {
+          nullcheck = true
+        }
+      }
+
+    } 
+
+  }
+
+
+
+    
+
+}
+
+wrapper = document.getElementById("wrapper");
+content = document.getElementById("content");
+test = document.getElementById("test");
+
+content.innerHTML = more;
+
+// hook the scroll handler to scroll event
+if (wrapper.addEventListener) // NK: Works on all new browsers
+  wrapper.addEventListener("scroll", scroller, false);
+
+else if (wrapper.attachEvent) // NK: Works on old IE
+  wrapper.attachEvent("onscroll", scroller);
+</script>
