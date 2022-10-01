@@ -267,4 +267,4 @@ def register():
     return open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^",form)
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8090)
+    app.run("0.0.0.0", 8080)
