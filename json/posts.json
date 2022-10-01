@@ -6,21 +6,5 @@
     "likes": 1,
     "locked": true,
     "comments": {}
-  },
-  "1": {
-    "title": "Welcome to Bark-it.",
-    "author": "TESTIFICATE",
-    "content": "Hello world",
-    "likes": 1,
-    "locked": false,
-    "comments": {}
-  },
-  "2": {
-    "title": "test",
-    "author": "TESTIFICATE",
-    "content": "Hello world",
-    "likes": 1,
-    "locked": false,
-    "comments": {}
   }
 }

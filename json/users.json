@@ -1,12 +1,3 @@
 {
-  "admin": {
-    "password": "test123",
-    "posts": [],
-    "token": "32472389047"
-  },
-  "megaboi": {
-    "password": "test123!!!!",
-    "posts": [],
-    "token": 97745052062825391458
-  }
+
 }
