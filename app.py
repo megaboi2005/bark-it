@@ -1,6 +1,6 @@
 import json
 from time import time
-
+import cryptocode
 from flask import (
     Flask, abort, redirect, render_template, request, send_file,
     send_from_directory, url_for)
@@ -8,10 +8,9 @@ from werkzeug.datastructures import ImmutableMultiDict
 from flask import session
 global post
 
-loggedin = False
 post = open("templates/post.html", "r").read()
 app = Flask(__name__)
-app.secret_key = b'aodhukasdhuiladhiouladhuioadhukladhkuashduklahi8'
+app.secret_key = b'secretkey'
 
 def loadjson():
     return open("json/posts.json", "r").read()
@@ -48,7 +47,16 @@ def genposts(page):
     return output
 
 
-
+def genpost(id):
+    postload = json.loads(open("json/posts.json", "r").read())[id]
+    return (
+        post.replace("^user^", postload["author"])
+        .replace("^title^", postload["title"])
+        .replace("^content^", postload["content"])
+        
+        .replace("^right^",f"/posts/{id-1}")
+        .replace("^left^",f"/posts/{id-1}")
+    )
 
 
 def getData(file):
@@ -61,22 +69,20 @@ def main(name=None):
     global processing_time
     global posts
     start = time()
-    posts = genposts(0)
-    resp = render_template("index.html", posts=posts)
+    posts = open("templates/genposts.html","r").read()
+    resp = open("templates/index.html","r").read()
     end = time()
     processing_time = end - start
     try:
         name = session["name"]
     except:
-        if loggedin == False:
-            name = "Login/Register"
-        else:
-            name = username
+        name = "Login"
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", "/posts/1")
         .replace("^left^", "/posts/1")
         .replace("^profile^",name)
+        .replace("^posts^",posts)
     )
 
 
@@ -98,18 +104,10 @@ def posts(page):
     resp = render_template("index.html", posts=posts)
     end = time()
     processing_time = end - start
-    try:
-        name = session["name"]
-    except:
-        if loggedin == False:
-            name = "Login/Register"
-        else:
-            name = username
     return (
         resp.replace("^render^", str(processing_time))
         .replace("^right^", f"/posts/{str(int(page) + 1)}")
         .replace("^left^", f"/posts/{str(int(page) - 1)}")
-        .replace("^profile^", name)
     )
 
 
@@ -118,16 +116,18 @@ def posts(page):
 def postget(id):
 
     try:
-        return loadjson()[id]
+        return json.loads(loadjson())[id]
 
-    except KeyError:
-        return "unknown post"
+    except:
+        return "null"
 
+@app.route("/postcount")
+def postcount():
+    return str(len(json.loads(loadjson())))
 
 @app.route("/comments/<id>/")
 def comments(id):
-    post = loadjson()[id]
-    return render_template("index.html", posts="lol no comments yet")
+    return render_template("index.html", posts=genpost(id))
 
 
 @app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
@@ -136,36 +136,33 @@ def user():
         try:
             sessname = session["name"]
         except:
-            if loggedin == False:
-                sessname = "Login/Register"
-            else:
-                sessname = username
-            return open("templates/index.html","r").read().replace("^profile^","Login").replace("{{ posts|safe }}","not logged in") 
+            return open("templates/index.html","r").read().replace("^profile^","Login").replace("^posts^","not logged in") 
         title = request.args.get('title')
         content = request.args.get('post')
 
         if title == None:
             form = """
-<div class=post>
+<div class=posts>
+    <center>
     <form action="/sendpost">
         <label for="id1">Title </label>
-        <input type="text" id="id1" name="title">
+        <br>
+        <input style="background-color: #282929; color: white; border: none;" type="text" id="id1" name="title">
         <br>
         <label for="id2">Content  </label>
-        <textarea id="post" name="post" rows="4" cols="50"></textarea>
         <br>
-        <input type="submit" value="Submit">
+        <textarea style="resize: both; border: none;" id="id2" name="post"></textarea>
+        <br>
+        <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
     </form>
+    </center>
 </div>"""   
             try:
                 name = session["name"]
             except:
-                if loggedin == False:
-                    name = "Login/Register"
-                else:
-                    name = username
-                return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","not logged in") 
-            return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form) 
+                name = "Login"
+                return open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","not logged in") 
+            return open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^",form) 
         try:  
             token = "0"
             posts = getData("json/posts.json")
@@ -185,33 +182,17 @@ def user():
             )
             postfile.write(json.dumps(posts, indent=2))
             print(f"Name: {sessname}, Title: '{title}'\nContent: {content}")
-            return '<meta http-equiv="Refresh" content="0; url=/" />'
+            return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
         except:
-            return '<meta http-equiv="Refresh" content="0"; url=/" />'
+            return '<meta http-equiv="Refresh" content="0"; url=/sendpost" />'
 
     else:
         return f"{request.method} requests don't work on this url"
-
-@app.route("/logreg/", methods=['GET', 'POST'])
-def logreg():
-    about = open("templates/logreg.html","r").read()
-    try:
-        name = session["name"]
-    except:
-        if loggedin == False:
-            name = "Login/Register"
-        else:
-            name = username
-    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
-        
-
-
 @app.route("/login/")
 def login():
-    global loggedin
-    global username
     form = """
-    <div class=post>
+
+    <div class=posts>
         <form action="/login">
             <label for="id1">Username </label>
             <input type="text" id="id1" name="name">
@@ -225,42 +206,38 @@ def login():
     userread = json.loads(open("json/users.json","r").read())
     name = request.args.get('name')
     password = request.args.get('pass')
+
     try:
         sessname = session["name"]
     except:
-        if loggedin == False:
-            sessname = "Login/Register"
-        else:
-            sessname = username
+        sessname = "Login"
     if name == None or password == None:
-        return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form)
+        return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^",form)
     else:
         try:
-            if userread[name]["password"] == password:
+            
+            decrypt = cryptocode.decrypt(userread[name]["password"], password)
+            #if decrypt == False:
+                #return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","<center><p>incorrect username or password</p></center> "+form)
+            if decrypt == password:
                 session['name'] = name
             else:
-                return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","<p>incorrect username or password</p> "+form)
+                return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","<center><p>incorrect username or password</p></center> "+form)
             return '<meta http-equiv="Refresh" content="0; url=/" />'
         except:
             return '<meta http-equiv="Refresh" content="0; url=/" />'
     if not title or not content:
         return "notfinished"
-    loggedin = True
-    username = name
+
 @app.route("/register/")
 def register():
-    global username
-    global loggedin
-    loggedin = False
+
     try:
         sessname = session["name"]
     except:
-        if loggedin == False:
-            sessname = "Login/Register"
-        else:
-            sessname = name
+        sessname = "Login"
     form = """
-    <div class=post>
+    <div class=posts>
         <form action="/register">
             <label for="id1">Username </label>
             <input type="text" id="id1" name="name">
@@ -271,53 +248,23 @@ def register():
             <input type="submit" value="Submit">
         </form>
     </div>"""
+    
     userread = json.loads(open("json/users.json","r").read())
     name = request.args.get('name')
     password = request.args.get('pass')
+    
     if name == None or password == None:
-        return open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}",form)
+        return open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^",form)
     for item in userread:
         if name == item:
            
-            return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("{{ posts|safe }}","<p>Name already taken</p> "+form)
-    
+            return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","<p>Name already taken</p> "+form)
+    password = cryptocode.encrypt(password,password)
     userwrite = open("json/users.json","w")
     userread.update({name : {"password" : password}})
     userwrite.write(json.dumps(userread, indent=2))
-    loggedin = True
-    username = name
 
-    return '<meta http-equiv="Refresh" content="0; url=/" />'
-
-
-@app.route("/about")
-def aboutpage():
-    about = open("templates/about.html","r").read()
-    try:
-        name = session["name"]
-    except:
-        if loggedin == False:
-            name = "Login"
-        else:
-            name = username
-    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
-
-@app.route("/settings")
-def userpage():
-    if loggedin == True:
-        about = open("templates/404.html","r").read()
-    else:
-        about = open("templates/settings.html","r").read()
-    try:
-        name = session["name"]
-    except:
-        if loggedin == False:
-            name = "Login/Register"
-        else:
-            name = username
-    return  open("templates/index.html","r").read().replace("^profile^",name).replace("{{ posts|safe }}",about)
+    return open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^",form)
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8080)
-
-
+    app.run("0.0.0.0", 8090)
