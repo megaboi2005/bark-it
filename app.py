@@ -306,6 +306,9 @@ def chngsettings(setting):
         case "changepass":
             password = request.args.get('oldpass')
             newpass = request.args.get('newpass')
+            newpass2 = request.args.get('newpass2')
+            if not newpass == newpass2:
+                 return '<meta http-equiv="Refresh" content="2; url=/settings"/><p>new passwords do not match</p>'
             userread = json.loads(open("json/users.json","r").read())
             if not len(newpass) >= 1:
                 return "put in a new password"
