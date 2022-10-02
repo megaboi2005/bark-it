@@ -134,6 +134,23 @@
 		border-color: #FF5A51;
 		transition: 100ms;
 	}
+	.input {
+		filter: brightness(100%);
+		background-color: #282929;
+		transition: 100ms;
+		border: solid;
+		border-radius: 5px;
+		border-width: 3px;
+		border-color: #282929;
+		border-bottom-color: #F97B72;
+		font-family: monospace;
+		color: white;
+		position: relative;		
+	}
+	.input:hover {
+		filter: brightness(75%);
+	}
+
 /* width */
 ::-webkit-scrollbar {
 
@@ -228,7 +245,7 @@
     			<a class=sidebutton href="/report"><button>Report</button></a>
     			<a class=sidebutton href="/register"><button>Register</button></a>
     			<center>
-    			<a class="active" href="/" >
+    			<a class="active" href="/settings" >
     			<div class=logo>
     			<center><img id=logo style="width: 25%;"src=/images/settings.png></center>
     			</div>

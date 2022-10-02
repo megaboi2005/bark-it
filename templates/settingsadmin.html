@@ -1,0 +1,33 @@
+<div class=posts id=posts>
+	<center>
+	<h4>Change password</h4>
+	<form action="/chngsetting/changepass">
+		<label>Old Password</label>
+		<br>
+		<input class=input type="password" name="oldpass" required>
+		<br>
+		<label>New password</label>
+		<br>
+		<input class=input type="password" name="newpass" required>
+		<br>
+		<input class=styledbutton type="submit" value="Save">
+	</form>
+	<br>
+	<h4>Ban User</h4>
+	<form action="/chngsetting/adminban">
+		<label>User</label>
+		<br>
+		<input class=input type="text" name="user">
+		<br>
+		<input class=styledbutton type="submit" name="submit">
+	</form>
+	<h4>unban User</h4>
+	<form action="/chngsetting/adminunban">
+		<label>User</label>
+		<br>
+		<input class=input type="text" name="user">
+		<br>
+		<input class=styledbutton type="submit" name="submit">
+	</form>
+	</center>
+</div>
