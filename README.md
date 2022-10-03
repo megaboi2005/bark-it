@@ -8,12 +8,12 @@
 
 ## Plans
 
-- [ ] Able to post .-.
-- [ ] Accounts
+- [X] Able to post .-.
+- [X] Accounts
 - [ ] 2 factor authentication
 - [ ] No exploits LOL
-- [ ] User settings
-- [ ] Some javascript
+- [X] User settings
+- [X] Some javascript
 - [ ] ebicness
 
 ## About
