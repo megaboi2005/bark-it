@@ -19,15 +19,20 @@
 ## About
 
 I was quarantined one day so I made a crappy website and decided to rewrite it and make it open source.
-The old code sucked so I thought I'd rewrite it.
+The old code sucked so I thought I'd rewrite it (twice). 
+
+If you want to see the bad aiohttp-based code then go to that branch and don't complain about the constant issues you have with it.
 
 ## Credits
 
 - Thanks to Bigjango for taking it upon themself to rewrite all the old features and optimizing my crappy code.
 - Thanks to TheShadowDragon for using his javascript skills.
-- Thanks to SkyKrye for making the main page.
+- Thanks to SkyKrye for some cool ideas.
+
+## Libraries
+1. pip3 install flask
+2. pip3 install cryptocode
 
 ## How to run
 
-1. `pip3 install flask`
-2. Open directory and type `flask run` or `python3 app.py` and hit enter. Alternatively, if you wish to run the code in debug mode, type `flask --app app.py --debug run` (Allows you to speed up checking process instead of restarting a lot).
+Open directory and type `flask run` or `python3 app.py` and hit enter. Alternatively, if you wish to run the code in debug mode, type `flask --app app.py --debug run` (Allows you to speed up checking process instead of restarting a lot).
