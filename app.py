@@ -100,6 +100,7 @@ def main(name=None):
         .replace("^left^", "/posts/1")
         .replace("^profile^", name)
         .replace("^posts^", posts)
+        .replace("^title^", "Main")
     )
 
 
@@ -131,6 +132,7 @@ def about():
         .read()
         .replace("^profile^", sessname)
         .replace("^posts^", open("templates/about.html").read())
+        .replace("^title^", "About")
     )
 
 
@@ -163,6 +165,7 @@ def user():
                 .read()
                 .replace("^profile^", "Login")
                 .replace("^posts^", "not logged in")
+                .replace("^title^", "Sending posts")
             )
         title = request.args.get("title")
         content = request.args.get("post")
@@ -192,12 +195,15 @@ def user():
                     .read()
                     .replace("^profile^", sessname)
                     .replace("^posts^", "not logged in")
+                    .replace("^title^", "Login")
                 )
             return (
                 open("templates/index.html", "r")
                 .read()
                 .replace("^profile^", sessname)
                 .replace("^posts^", form)
+                .replace("^title^", sessname)
+
             )
         if len(content) > 6000 or len(title) > 6000:
             return "post size is too big"
@@ -254,6 +260,7 @@ def login():
             .read()
             .replace("^profile^", sessname)
             .replace("^posts^", form)
+            .replace("^title^", "Login")
         )
     else:
         if checkban(name):
@@ -273,6 +280,7 @@ def login():
                     "<center><p>incorrect username or password</p></center> "
                     + form,
                 )
+                .replace("^title^", "Login")
             )
         return '<meta http-equiv="Refresh" content="0; url=/" />'
     
@@ -305,6 +313,7 @@ def register():
             .read()
             .replace("^profile^", sessname)
             .replace("^posts^", form)
+            .replace("^title^", "Register")
         )
     for item in userread:
         if name == item:
@@ -313,6 +322,7 @@ def register():
                 .read()
                 .replace("^profile^", sessname)
                 .replace("^posts^", "<p>Name already taken</p> " + form)
+                .replace("^title^", "Register")
             )
     password = cryptocode.encrypt(password, password)
     userwrite = open("json/users.json", "w")
@@ -324,6 +334,7 @@ def register():
         .read()
         .replace("^profile^", sessname)
         .replace("^posts^", form)
+        .replace("^title^", "Register")
     )
 
 
@@ -336,12 +347,14 @@ def settings():
             .read()
             .replace("^profile^", sessname)
             .replace("^posts^", open("templates/settingsadmin.html", "r").read())
+            .replace("^title^", "Settings")
         )
     return (
         open("templates/index.html", "r")
         .read()
         .replace("^profile^", sessname)
         .replace("^posts^", open("templates/settings.html", "r").read())
+        .replace("^title^", "Settings")
     )
 
 
@@ -398,29 +411,43 @@ def searchpage():
     object = request.args.get("object")
     searched = request.args.get("search")
     index = open("templates/index.html", "r").read()
-    if not searched == None and not object == None:
-        match object:
-            case "channel":
-                channellist = []
-                channels = json.loads(open("json/catagories.json", "r").read())
-                for i in range(len(channels)):
-                    if distance(searched, channels[str(i)]["name"]) < 4:
-                        channellist.append(channels[str(i)]["name"])
-                return channellist
-            case "posts":
-                postslist = []
-                postsrender = ""
-                postspage = open("templates/post.html","r").read()
-                posts = json.loads(open("json/posts.json", "r").read())
-                for i in range(len(posts)):
-                    if distance(searched, posts[str(i)]["title"]) < 4:
-                        postslist.append(posts[str(i)])
-                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"])
-                return index.replace("^posts^",postsrender).replace("^profile^",sessname)
-    else:
-        return index.replace("^profile^",sessname).replace("^posts^", open("templates/search.html", "r").read())
-    
 
+    if searched and object:
+        if object == "channel":
+            channels = json.load(open("json/catagories.json", "r"))
+            channellist = [c["name"] for c in channels.values() if distance(searched, c["name"]) < 4]
+            return channellist
+
+        elif object == "posts":
+            posts = json.load(open("json/posts.json", "r"))
+            post_template = open("templates/post.html", "r").read()
+            postslist = [p for p in posts.values() if distance(searched, p["title"]) < 4]
+            postsrender = "".join([post_template.replace("^user^", p["author"]).replace("^title^", p["title"]).replace("^content^", p["content"]) for p in postslist])
+            return index.replace("^posts^", postsrender).replace("^profile^", sessname)
+
+    return index.replace("^profile^", sessname).replace("^posts^", open("templates/search.html", "r").read().replace("^title^", "Search"))
+    
+@app.route("/channels")
+def channels():
+    sessname = session.get("name", "Login")
+    return (
+        open("templates/index.html", "r")
+        .read()
+        .replace("^profile^", sessname)
+        .replace("^posts^", open("templates/channels.html").read())
+        .replace("^title^", "Channels")
+    )
+
+@app.route("/report")
+def report():
+    sessname = session.get("name", "Login")
+    return (
+        open("templates/index.html", "r")
+        .read()
+        .replace("^profile^", sessname)
+        .replace("^posts^", open("templates/report.html").read())
+        .replace("^title^", "Report")
+    )
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 8080)
