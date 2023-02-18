@@ -83,6 +83,10 @@ def checkban(user):
     else:
         return False
 
+def renderindex(page,title,session):
+    index = open("templates/index.html","r").read()
+    user = session.get("name", "Login")
+    return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title)
 
 @app.route("/")
 def main(name=None):
@@ -90,17 +94,10 @@ def main(name=None):
     global posts
     start = time()
     posts = open("templates/genposts.html", "r").read()
-    resp = open("templates/index.html", "r").read()
     end = time()
     processing_time = end - start
-    name = session.get("name", "Login")
-    return (
-        resp.replace("^render^", str(processing_time))
-        .replace("^right^", "/posts/1")
-        .replace("^left^", "/posts/1")
-        .replace("^profile^", name)
-        .replace("^posts^", posts)
-    )
+    return renderindex(posts,"Home",session)
+
 
 
 @app.route("/images/<path:filename>")
@@ -125,13 +122,7 @@ def images(filename):
 
 @app.route("/about")
 def about():
-    sessname = session.get("name", "Login")
-    return (
-        open("templates/index.html", "r")
-        .read()
-        .replace("^profile^", sessname)
-        .replace("^posts^", open("templates/about.html").read())
-    )
+    return renderindex(open("templates/about.html").read(),"About",session)
 
 
 # API
@@ -158,12 +149,8 @@ def user():
             if checkban(sessname):
                 return "you are banned"
         else:
-            return (
-                open("templates/index.html", "r")
-                .read()
-                .replace("^profile^", "Login")
-                .replace("^posts^", "not logged in")
-            )
+            return renderindex("not logged in","Post",session)
+
         title = request.args.get("title")
         content = request.args.get("post")
 
@@ -187,22 +174,12 @@ def user():
             name = session["name"]
             if name == None:
                 name = "Login"
-                return (
-                    open("templates/index.html", "r")
-                    .read()
-                    .replace("^profile^", sessname)
-                    .replace("^posts^", "not logged in")
-                )
-            return (
-                open("templates/index.html", "r")
-                .read()
-                .replace("^profile^", sessname)
-                .replace("^posts^", form)
-            )
+                return renderindex("not logged in","Post",session)
+            return renderindex(form,"Post",session)          
         if len(content) > 6000 or len(title) > 6000:
             return "post size is too big"
 
-        token = "0"
+        #token = "0"
         posts = getData("json/posts.json")
         newPostId = max(map(int, posts.keys())) + 1
         postfile = open("json/posts.json", "w")
@@ -244,17 +221,8 @@ def login():
     name = request.args.get("name")
     password = request.args.get("pass")
     
-    sessname = session.get("name", "Login")
-    
-        
-
     if name == None or password == None:
-        return (
-            open("templates/index.html", "r")
-            .read()
-            .replace("^profile^", sessname)
-            .replace("^posts^", form)
-        )
+        return renderindex(form,"Register",session)
     else:
         if checkban(name):
             return "you are banned"
@@ -264,16 +232,7 @@ def login():
         if decrypt == password:
             session["name"] = name
         else:
-            return (
-                open("templates/index.html", "r")
-                .read()
-                .replace("^profile^", sessname)
-                .replace(
-                    "^posts^",
-                    "<center><p>incorrect username or password</p></center> "
-                    + form,
-                )
-            )
+            return renderindex("<center><p>incorrect username or password</p></center> "+ form,"Register",session)
         return '<meta http-equiv="Refresh" content="0; url=/" />'
     
 
@@ -300,49 +259,25 @@ def register():
     password = request.args.get("pass")
 
     if name == None or password == None:
-        return (
-            open("templates/index.html", "r")
-            .read()
-            .replace("^profile^", sessname)
-            .replace("^posts^", form)
-        )
+        return renderindex(form,"Register",session)
     for item in userread:
         if name == item:
-            return (
-                open("templates/index.html", "r")
-                .read()
-                .replace("^profile^", sessname)
-                .replace("^posts^", "<p>Name already taken</p> " + form)
-            )
+            return renderindex("<p>Name already taken</p> ","Register",session)
     password = cryptocode.encrypt(password, password)
     userwrite = open("json/users.json", "w")
     userread.update({name: {"password": password, "banned": "False"}})
     userwrite.write(json.dumps(userread, indent=2))
-
-    return (
-        open("templates/index.html", "r")
-        .read()
-        .replace("^profile^", sessname)
-        .replace("^posts^", form)
-    )
+    return renderindex(form,"Register",session)
 
 
 @app.route("/settings/")
 def settings():
     sessname = session.get("name", "Login")
     if sessname == "admin":
-        return (
-            open("templates/index.html", "r")
-            .read()
-            .replace("^profile^", sessname)
-            .replace("^posts^", open("templates/settingsadmin.html", "r").read())
-        )
-    return (
-        open("templates/index.html", "r")
-        .read()
-        .replace("^profile^", sessname)
-        .replace("^posts^", open("templates/settings.html", "r").read())
-    )
+        return renderindex(open("templates/settingsadmin.html", "r").read(),"Admin Settings",session)
+    return renderindex(open("templates/settings.html", "r").read(),"Settings",session)
+
+    
 
 
 @app.route("/chngsetting/<setting>")
@@ -413,12 +348,13 @@ def searchpage():
                 postspage = open("templates/post.html","r").read()
                 posts = json.loads(open("json/posts.json", "r").read())
                 for i in range(len(posts)):
-                    if distance(searched, posts[str(i)]["title"]) < 4:
+                    if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
                         postslist.append(posts[str(i)])
                         postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"])
-                return index.replace("^posts^",postsrender).replace("^profile^",sessname)
+                return renderindex(postsrender,searched,session)
     else:
-        return index.replace("^profile^",sessname).replace("^posts^", open("templates/search.html", "r").read())
+        return renderindex(open("templates/search.html", "r").read(),"Search",session)
+       
     
 
 
