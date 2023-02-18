@@ -14,6 +14,7 @@ from flask import (
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import session
 from random import randrange
+from Levenshtein import distance
 
 global post
 
@@ -242,8 +243,10 @@ def login():
     userread = json.loads(open("json/users.json", "r").read())
     name = request.args.get("name")
     password = request.args.get("pass")
-
-    sessname = session["name", "Login"]
+    
+    sessname = session.get("name", "Login")
+    
+        
 
     if name == None or password == None:
         return (
@@ -271,9 +274,8 @@ def login():
                     + form,
                 )
             )
-            return '<meta http-equiv="Refresh" content="0; url=/" />'
-    if not title or not content:
-        return "notfinished"
+        return '<meta http-equiv="Refresh" content="0; url=/" />'
+    
 
 
 @app.route("/register/")
@@ -373,7 +375,7 @@ def chngsettings(setting):
             userread = json.loads(open("json/users.json", "r").read())
             if userread.get(user):
                 userread[user]["banned"] = "True"
-            else
+            else:
                 return "unknown user"
             usersave = open("json/users.json", "w").write(
                 json.dumps(userread, indent=2)
@@ -390,6 +392,34 @@ def chngsettings(setting):
                 json.dumps(userread, indent=2)
             )
             return "unbanned"
+@app.route("/search/")
+def searchpage():
+    sessname = session.get("name", "Login")
+    object = request.args.get("object")
+    searched = request.args.get("search")
+    index = open("templates/index.html", "r").read()
+    if not searched == None and not object == None:
+        match object:
+            case "channel":
+                channellist = []
+                channels = json.loads(open("json/catagories.json", "r").read())
+                for i in range(len(channels)):
+                    if distance(searched, channels[str(i)]["name"]) < 4:
+                        channellist.append(channels[str(i)]["name"])
+                return channellist
+            case "posts":
+                postslist = []
+                postsrender = ""
+                postspage = open("templates/post.html","r").read()
+                posts = json.loads(open("json/posts.json", "r").read())
+                for i in range(len(posts)):
+                    if distance(searched, posts[str(i)]["title"]) < 4:
+                        postslist.append(posts[str(i)])
+                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"])
+                return index.replace("^posts^",postsrender).replace("^profile^",sessname)
+    else:
+        return index.replace("^profile^",sessname).replace("^posts^", open("templates/search.html", "r").read())
+    
 
 
 if __name__ == "__main__":
