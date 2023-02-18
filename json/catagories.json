@@ -1,0 +1,19 @@
+{
+    "0":{
+        "name" : "help",
+        "posts" : {}
+    },
+    "1":{
+        "name" : "art",
+        "posts" : {}
+    },
+    "2":{
+        "name" : "music",
+        "posts" : {}
+    },
+    "3":{
+        "name" : "gaming",
+        "posts" : {}
+    }
+
+}
