@@ -11,7 +11,7 @@ var nullcheck = false
 var postvar
 function getcount() {
   let xmlHttpReq = new XMLHttpRequest();
-  xmlHttpReq.open("GET", "/postcount", false);
+  xmlHttpReq.open("GET", "^counter^", false);
   xmlHttpReq.send(null);
   postvar = Number(xmlHttpReq.responseText) - 1
   console.log(postvar)
@@ -31,7 +31,7 @@ function scroller() {
             break
           }
           let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/postget/"+postvar, false); 
+          xmlHttpReq.open("GET", "/^api^/"+postvar, false); 
           xmlHttpReq.send(null);
         if (xmlHttpReq.responseText !== "null") {
           console.log(nullcheck)

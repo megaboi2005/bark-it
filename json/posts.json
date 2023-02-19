@@ -6,5 +6,13 @@
     "likes": 1,
     "locked": true,
     "comments": {}
+  },
+  "1": {
+    "title": "post1",
+    "author": "mega32",
+    "content": "essss",
+    "likes": 1,
+    "locked": false,
+    "comments": {}
   }
 }

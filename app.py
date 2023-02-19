@@ -15,11 +15,12 @@ from werkzeug.datastructures import ImmutableMultiDict
 from flask import session
 from random import randrange
 from Levenshtein import distance
-
+from werkzeug.utils import secure_filename
+import os
 global post
 
 post = open("templates/post.html", "r").read()
-app = Flask(__name__)
+app = Flask(__name__,static_url_path='/files',static_folder='static')
 app.secret_key = b"secretkey"
 
 
@@ -85,20 +86,37 @@ def checkban(user):
 
 def renderindex(page,title,session):
     index = open("templates/index.html","r").read()
+    users = json.loads(open("json/users.json","r").read())
+    try:
+        userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
+    except:
+        userpfp = "/images/bark-it-small.png"
     user = session.get("name", "Login")
-    return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title)
+    return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
 
 @app.route("/")
 def main(name=None):
     global processing_time
     global posts
     start = time()
-    posts = open("templates/genposts.html", "r").read()
+    posts = open("templates/genposts.html", "r").read().replace("^api^","postget").replace("^counter^","postcount")
     end = time()
     processing_time = end - start
     return renderindex(posts,"Home",session)
 
+@app.route("/user/<name>")
+def userpage(name):
+    if name == None:
+        return "invalid user"
+    posts = open("templates/genposts.html", "r").read().replace("^api^","userget/"+name).replace("^counter^","/postcountuser/"+str(name))
+    return renderindex(posts,name,session)
 
+@app.route("/userget/<user>/<id>")
+def userget(user,id):
+    try:
+        return json.loads(loadjson())[getData("json/users.json")[user]["posts"][id]["id"]]
+    except KeyError:
+        return "null"
 
 @app.route("/images/<path:filename>")
 def images(filename):
@@ -120,89 +138,10 @@ def images(filename):
         abort(404)
 
 
+
 @app.route("/about")
 def about():
     return renderindex(open("templates/about.html").read(),"About",session)
-
-
-# API
-@app.route("/postget/<id>/")
-def postget(id):
-    return json.loads(loadjson()).get(id, "nill")
-
-
-@app.route("/postcount")
-def postcount():
-    return str(len(json.loads(loadjson())))
-
-
-# @app.route("/comments/<id>/")
-# def comments(id):
-#    return render_template("index.html", posts=genpost(id))
-
-
-@app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
-def user():
-    if request.method == "GET":
-        sessname = session.get("name")
-        if sessname:
-            if checkban(sessname):
-                return "you are banned"
-        else:
-            return renderindex("not logged in","Post",session)
-
-        title = request.args.get("title")
-        content = request.args.get("post")
-
-        if title == None:
-            form = """
-<div class=posts>
-    <center>
-    <form action="/sendpost">
-        <label for="id1">Title </label>
-        <br>
-        <input class=input type="text" id="id1" name="title" required>
-        <br>
-        <label for="id2">Content  </label>
-        <br>
-        <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
-        <br>
-        <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
-    </form>
-    </center>
-</div>"""
-            name = session["name"]
-            if name == None:
-                name = "Login"
-                return renderindex("not logged in","Post",session)
-            return renderindex(form,"Post",session)          
-        if len(content) > 6000 or len(title) > 6000:
-            return "post size is too big"
-
-        #token = "0"
-        posts = getData("json/posts.json")
-        newPostId = max(map(int, posts.keys())) + 1
-        postfile = open("json/posts.json", "w")
-        posts.update(
-            {
-                newPostId: {
-                    "title": title,
-                    "author": sessname,
-                    "content": content,
-                    "likes": 1,
-                    "locked": False,
-                    "comments": {},
-                }
-            }
-        )
-        postfile.write(json.dumps(posts, indent=2))
-        print(f"Name: {sessname}, Title: '{title}'\nContent: {content}")
-        return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
-
-    else:
-        return f"{request.method} requests don't work on this url"
-
-
 @app.route("/login/")
 def login():
     form = """
@@ -222,7 +161,7 @@ def login():
     password = request.args.get("pass")
     
     if name == None or password == None:
-        return renderindex(form,"Register",session)
+        return renderindex(form,"Login",session)
     else:
         if checkban(name):
             return "you are banned"
@@ -232,7 +171,7 @@ def login():
         if decrypt == password:
             session["name"] = name
         else:
-            return renderindex("<center><p>incorrect username or password</p></center> "+ form,"Register",session)
+            return renderindex("<center><p>incorrect username or password</p></center> "+ form,"Login",session)
         return '<meta http-equiv="Refresh" content="0; url=/" />'
     
 
@@ -265,9 +204,20 @@ def register():
             return renderindex("<p>Name already taken</p> ","Register",session)
     password = cryptocode.encrypt(password, password)
     userwrite = open("json/users.json", "w")
-    userread.update({name: {"password": password, "banned": "False"}})
-    userwrite.write(json.dumps(userread, indent=2))
-    return renderindex(form,"Register",session)
+    
+    userread.update(
+        {
+            name: {
+                "password": password, 
+                "banned": "False",
+                "posts": {}
+                }
+        }
+    
+    )
+
+    userwrite.write(json.dumps(userread,indent=2))
+    return '<meta http-equiv="Refresh" content="2; url=/settings"/>'
 
 
 @app.route("/settings/")
@@ -354,9 +304,118 @@ def searchpage():
                 return renderindex(postsrender,searched,session)
     else:
         return renderindex(open("templates/search.html", "r").read(),"Search",session)
+
+
+# API
+@app.route("/postget/<id>/")
+def postget(id):
+    return json.loads(loadjson()).get(id, "nill")
+
+
+@app.route("/postcount")
+def postcount():
+    return str(len(json.loads(loadjson())))
+
+@app.route("/postcountuser/<user>")
+def postcountuser(user):
+    return str(len(getData("json/users.json")[user]["posts"]))
+
+@app.route("/imagedatabase/<path:filename>")
+def profiledatabase(filename):
+    try:
+        return send_from_directory("imagedatabase", filename, as_attachment=True)
+    except FileNotFoundError:
+        abort(404)
+
+@app.route('/uploadprofile', methods=['POST'])
+def uploadpfp():
+    f = request.files['file']
+    extension = f.filename.split(".")[len(f.filename.split("."))-1]
+    if not extension == "png":
+        return "extension must be a png"
+    f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
+    return '<meta http-equiv="Refresh" content="0; url=/"/>'
+
+
+# @app.route("/comments/<id>/")
+# def comments(id):
+#    return render_template("index.html", posts=genpost(id))
+
+
+@app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
+def user():
+    if request.method == "GET":
+        sessname = session.get("name")
+        if sessname:
+            if checkban(sessname):
+                return "you are banned"
+        else:
+            return renderindex("not logged in","Post",session)
+
+        title = request.args.get("title")
+        content = request.args.get("post")
+
+        if title == None:
+            form = """
+<div class=posts>
+    <center>
+    <form action="/sendpost">
+        <label for="id1">Title </label>
+        <br>
+        <input class=input type="text" id="id1" name="title" required>
+        <br>
+        <label for="id2">Content  </label>
+        <br>
+        <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
+        <br>
+        <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
+    </form>
+    </center>
+</div>"""
+            name = session["name"]
+            if name == None:
+                name = "Login"
+                return renderindex("not logged in","Post",session)
+            return renderindex(form,"Post",session)          
+        if len(content) > 6000 or len(title) > 6000:
+            return "post size is too big"
+
+        #token = "0"
+        posts = getData("json/posts.json")
+        users = getData("json/users.json")
+        newPostId = max(map(int, posts.keys())) + 1
+        postfile = open("json/posts.json", "w")
+        usersfile = open("json/users.json","w")
+        posts.update(
+            {
+                newPostId: {
+                    "title": title,
+                    "author": sessname,
+                    "content": content,
+                    "likes": 1,
+                    "locked": False,
+                    "comments": {},
+                }
+            }
+        )
+        length = len(users[session["name"]]["posts"])
+        users[session["name"]]["posts"].update(
+            {length: {"id":str(newPostId)}}
+        )
+        postfile.write(json.dumps(posts, indent=2))
+        usersfile.write(json.dumps(users,indent=2))
+        print(f"Name: {sessname}, Title: '{title}'\nContent: {content}")
+        return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
+
+    else:
+        return f"{request.method} requests don't work on this url"
+
+
+
        
-    
+
 
 
 if __name__ == "__main__":
     app.run("0.0.0.0", 8080)
+    app.config['UPLOAD_FOLDER'] = 'imagedatabase'
