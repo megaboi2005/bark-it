@@ -224,7 +224,7 @@ def register():
     )
 
     userwrite.write(json.dumps(userread,indent=2))
-    return '<meta http-equiv="Refresh" content="2; url=/settings"/>'
+    return '<meta http-equiv="Refresh" content="2; url=/login"/>'
 
 
 @app.route("/settings/")
