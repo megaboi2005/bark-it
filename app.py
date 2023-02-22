@@ -88,11 +88,16 @@ def renderindex(page,title,session):
     index = open("templates/index.html","r").read()
     users = json.loads(open("json/users.json","r").read())
     try:
-        userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
+        userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]+".png"
     except:
         userpfp = "/images/bark-it-small.png"
     user = session.get("name", "Login")
     return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
+
+
+def getuserprofile(user):
+    users = json.loads(open("json/users.json","r").read())
+    return "/imagedatabase/"+users[user]["pfp"]+".png"
 
 @app.route("/")
 def main(name=None):
@@ -109,7 +114,7 @@ def userpage(name):
     if name == None:
         return "invalid user"
     posts = open("templates/genposts.html", "r").read().replace("^api^","userget/"+name).replace("^counter^","/postcountuser/"+str(name))
-    return renderindex(posts,name,session)
+    return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name)
 
 @app.route("/userget/<user>/<id>")
 def userget(user,id):
@@ -138,10 +143,10 @@ def images(filename):
         abort(404)
 
 
-
 @app.route("/about")
 def about():
     return renderindex(open("templates/about.html").read(),"About",session)
+
 @app.route("/login/")
 def login():
     form = """
@@ -207,11 +212,13 @@ def register():
     
     userread.update(
         {
-            name: {
+            name.replace(" ","_"): {
                 "password": password, 
                 "banned": "False",
-                "posts": {}
+                "posts": {},
+                "pfp": "0"
                 }
+            
         }
     
     )
@@ -300,7 +307,7 @@ def searchpage():
                 for i in range(len(posts)):
                     if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
                         postslist.append(posts[str(i)])
-                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"])
+                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"]) + "<br>"
                 return renderindex(postsrender,searched,session)
     else:
         return renderindex(open("templates/search.html", "r").read(),"Search",session)
@@ -329,11 +336,22 @@ def profiledatabase(filename):
 
 @app.route('/uploadprofile', methods=['POST'])
 def uploadpfp():
+    
+    if session.get("name","nope") == "nope":
+        return '<meta http-equiv="Refresh" content="0; url=/"/>'
     f = request.files['file']
+    userread = getData("json/users.json")
+    
     extension = f.filename.split(".")[len(f.filename.split("."))-1]
     if not extension == "png":
         return "extension must be a png"
-    f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
+    if  userread[session["name"]]["pfp"] == "0":
+        userwrite = open("json/users.json","w")
+        f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
+        userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1)
+        userwrite.write(json.dumps(userread,indent=2))
+    else:
+        f.save(os.path.join("imagedatabase", userread[session["name"]]["pfp"]+"."+extension))
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
@@ -409,10 +427,6 @@ def user():
 
     else:
         return f"{request.method} requests don't work on this url"
-
-
-
-       
 
 
 
