@@ -35,7 +35,7 @@
 		position: fixed;
 		border-style: solid;
 		border-radius: 10px;
-		border-color: #F97B72;
+		border-color: #FCFFB2;
 		border-width: 2px;
 		background-color: #F97B72;
 		float: left;
@@ -46,6 +46,7 @@
 		
 		transition: 100ms;
 	}
+
 	.sidebar {
 		
 		
@@ -86,16 +87,38 @@
 	.logo {
 		right: 25%;
 		position: static;
-		filter: opacity(20%);
+		filter: opacity(100%);
 		border: double;
 		width: 90%;
+		height: 150px;
 		border: none;
-		border-radius: 10px;
+		border-radius: 360px;
 		transition: 100ms;
 		
 	}
 	.logo:hover {
+		filter: opacity(25%);
+		border: none;
+		width: 89%;
+		border: double;
+		border-radius: 360px;
+		transition: 100ms;
+		border-color: #F97B72;
+	}
+	.settings {
+		right: 25%;
+		position: static;
 		filter: opacity(100%);
+		border: double;
+		width: 90%;
+		
+		border: none;
+		border-radius: 360px;
+		transition: 100ms;
+		
+	}
+	.settings:hover {
+		filter: opacity(25%);
 		border: none;
 		width: 89%;
 		border: double;
@@ -136,6 +159,7 @@
 		border-color: #FF5A51;
 		transition: 100ms;
 	}
+
 	input {
 		filter: brightness(100%);
 		background-color: #282929;
@@ -248,7 +272,7 @@
     			<a class=sidebutton href="/register"><button>Register</button></a>
     			<center>
     			<a class="active" href="/settings" >
-    			<div class=logo>
+    			<div class="settings">
     			<center><img id=logo style="width: 25%;"src=/images/settings.png></center>
     			</div>
     			</a>
