@@ -409,7 +409,7 @@ def user():
                 newPostId: {
                     "title": title,
                     "author": sessname,
-                    "content": content,
+                    "content": content.replace("<","&lt;").replace(">","&gt;"),
                     "likes": 1,
                     "locked": False,
                     "comments": {},
