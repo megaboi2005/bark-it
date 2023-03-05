@@ -1,4 +1,34 @@
-<div class = posts>
+<style>
+
+</style>
+
+
+<script>
+	const list = ["about","tos","privacy","faq"]
+
+	function switchtab(num) {
+
+		for (i=0;i<4;i++) {
+			var select = document.getElementById(list[i]);
+			if (i==num) {
+				select.style.display = "block"
+			} 
+			else {
+				select.style.display = "none"
+			}
+		}
+	}
+</script>
+
+<center>
+	<button onclick="switchtab(0)" style="width: 10%;">About</button>
+	<button onclick="switchtab(1)" style="width: 10%;">Terms of Service</button>
+	<button onclick="switchtab(2)" style="width: 10%;">Privacy Policy</button>
+	<button onclick="switchtab(3)" style="width: 10%;">FAQ</button>
+</center>
+<br>
+
+<div class = posts id="about" style="display: none;">
 	<center>
 		<h1>Welcome to Bark-IT</h1><br>
 		<h2>The second worst social media</h2><br>
@@ -26,5 +56,28 @@
 		<br>
 		<h4>And that's it, if you have any questions just join the discord and I'll give a quick answer</h4>
 		</div>
+	</center>
+</div>
+
+<div class = posts id="tos" style="display: none;">
+	<center>
+		<h1>TOS</h1><br>
+		<h2>Guidelines for freedom</h2><br>
+
+	</center>
+</div>
+
+<div class = posts id="privacy" style="display: none;">
+	<center>
+		<h1>Privacy Policy</h1><br>
+		<h2>The data we store for personal use</h2><br>
+
+	</center>
+</div>
+
+<div class = posts id="faq" style="display: none;">
+	<center>
+		<h1>FAQ</h1><br>
+		<h2>Commonly asked questions</h2><br>
 	</center>
 </div>
