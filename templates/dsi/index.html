@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>^title^</title>
+	<link rel="icon" href="/images/bark-it-fancy.png">
+</head>
+<style type="text/css">
+
+	body {
+		background-color: #000000;
+		color: white;
+		
+	}
+	.styledbutton {
+		filter: brightness(75%);
+		background-color: #282929;
+		transition: 100ms;
+		border-style: solid;
+		border-radius: 10px;
+		border-color: #282929;
+		color: white;
+			
+	}
+	.styledbutton:hover {
+		filter: brightness(100%);
+		transition: 100ms;
+		border-color: #F97B72;	
+	}
+	.sidearea {
+		
+		
+		width: 100%;
+		height: auto;
+		position: fixed;
+		border-style: solid;
+		border-radius: 10px;
+		border-color: #F97B72;
+		border-width: 2px;
+		background-color: #F97B72;
+		
+		
+	}
+	.sidearea:hover {
+		
+		
+		transition: 100ms;
+	}
+
+	.sidebar {
+		
+		
+		width: 30%;
+		height: auto;
+		position: sticky;
+		border-style: solid;
+		border-radius: 10px;
+		border-color: #F97B72;
+		border-width: 2px;
+		background-color: #282929;
+		
+	}
+	.sidebar:hover {
+		
+		
+	}
+	.sidebar2 {
+		filter: brightness(75%);
+		
+		width: 60%;
+		height: auto;
+		position: absolute;
+		border-style: solid;
+		border-radius: 10px;
+		border-color: #F97B72;
+		border-width: 2px;
+		background-color: #282929;
+		left: 30%;
+		
+	}
+	.sidebar2:hover {
+		filter: brightness(100%);
+		
+		
+	}
+
+	.logo {
+		right: 25%;
+		position: static;
+		filter: opacity(100%);
+		border: double;
+		width: 40%;
+		height: 40%;
+		border: none;
+		border-radius: 360px;
+		transition: 100ms;
+		
+	}
+	.logo:hover {
+		filter: opacity(25%);
+		border: none;
+		width: 40%;
+		height: 40%;
+		border: double;
+		border-radius: 360px;
+		transition: 100ms;
+		border-color: #F97B72;
+	}
+	.settings {
+		right: 25%;
+		position: static;
+		filter: opacity(100%);
+		border: double;
+		width: 90%;
+		
+		border: none;
+		border-radius: 360px;
+		transition: 100ms;
+		
+	}
+	.settings:hover {
+		filter: opacity(25%);
+		border: none;
+		width: 89%;
+		border: double;
+		border-radius: 360px;
+		transition: 100ms;
+		border-color: #F97B72;
+	}
+	.posts {
+		transition: 100ms;
+		left: 50%;
+		width: 50%;
+		height: auto;		
+		position: absolute;
+		border-style: solid;
+		border-radius: 10px;
+		border-color: #F97B72;
+		border-width: 2px;
+		background-color: #000000;
+		
+	}
+	.post {
+		filter: brightness(75%);
+		background-color: #282929;
+		transition: 100ms;
+		margin-bottom: 10px;
+		border: solid;
+		border-radius: 10px;
+		border-width: 2px;
+		border-color: #282929;
+		font-family: monospace;
+		width: 80%;
+		
+	}
+	.post:hover {
+		filter: brightness(100%);
+		border-width: 2px;
+		border-color: #FF5A51;
+		transition: 100ms;
+	}
+
+	input {
+		filter: brightness(100%);
+		background-color: #282929;
+		transition: 100ms;
+		border: solid;
+		border-radius: 5px;
+		border-width: 3px;
+		border-color: #282929;
+		border-bottom-color: #F97B72;
+		font-family: monospace;
+		color: white;
+		position: relative;		
+	}
+	input:hover {
+		filter: brightness(75%);
+	}
+
+/* width */
+::-webkit-scrollbar {
+
+  	width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #000000; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+	button {
+		filter: opacity(75%);
+		background-color: #282929;
+		width: 100%;
+		height: 10%;
+		color: white;
+		border: solid;
+		border-color: #F97B72;
+		border-radius: 10px;
+		transition: 100ms;
+		font-size: xx-small;
+	}
+	button:hover {
+		background-color: #282929;
+		width: 110%;
+		height: 10%;
+		color: white;
+		
+		
+		border-radius: 10px;
+		transition: 100ms;
+	}
+	textarea {
+		background-color: #282929;
+		width: 80%;
+		height: auto;
+		color: white;
+		border-radius:5px;
+		resize: none;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+</style>
+<script type="text/javascript">
+	var toggle_sidebar = true
+	function onsidebarclick() {
+		const sidebar2 = document.getElementById("sidebar2")
+		const sidebar = document.getElementById("sidebar")
+		const sidearea = document.getElementById("sidearea")
+		const toggle_botton = document.getElementById("toggle_button")
+		const posts = document.getElementById("posts")
+		if (toggle_sidebar) {
+			sidebar2.style.display = "none"
+			sidearea.style.width = "12.5%"
+			sidebar.style.width = "95%"
+			//toggle_button.style.height = "35px"
+			toggle_button.src = "/images/arrow.png"
+			try {
+				posts.style.width = "82%"
+				posts.style.left = "15%"
+			} catch {}
+
+			toggle_sidebar = false
+		} else {
+			sidebar2.style.display = "block"
+			sidearea.style.width = "20%"
+			sidebar.style.width = "50%"
+			//toggle_button.style.height = "57px"
+			toggle_button.src = "/images/arrow-back.png"
+			try {
+				posts.style.width = "75%"
+				posts.style.left = "22%"
+			} catch {}
+			toggle_sidebar = true
+		}
+		
+	}
+</script>
+
+<body>
+
+	<div class=sidearea id=sidearea>
+		<div style="width: 50%; background-color: #282929; border-radius: 10px; height: 10%;">
+			
+			
+		</div>
+
+		<div class=sidebar2 id=sidebar2>
+			<center><img src="/images/bark-it.png" style=" object-fit: cover; width: 20%;"></center>
+			^posts^
+				  
+		</div>
+		<div class=sidebar id="sidebar">
+				<center><a class="active" href="/ds" ><img id=logo class=logo src="^pfp^"></a></center>
+				<a class=sidebutton href="/ds/login"><button>^profile^</button></a>
+				<a class=sidebutton href="/ds/browse"><button>Browse</button></a>
+				<a class=sidebutton href="/ds/post"><button>Post</button></a>
+    			<a class=sidebutton href="/ds/info"><button>Guidelines</button></a>
+
+    						
+    	</div>
+
+	</div>
+
+
+
+
+
+
+
+
+</body>
+
+
+</html>
