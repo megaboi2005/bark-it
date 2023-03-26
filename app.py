@@ -17,6 +17,7 @@ from random import randrange
 from Levenshtein import distance
 from werkzeug.utils import secure_filename
 import os
+from urllib.parse import urlparse
 global post
 
 post = open("templates/post.html", "r").read()
@@ -107,6 +108,8 @@ def main(name=None):
     posts = open("templates/genposts.html", "r").read().replace("^api^","postget").replace("^counter^","postcount")
     end = time()
     processing_time = end - start
+    user_agent = request.headers.get('User-Agent')
+    print(user_agent.split('(')[1].split(')')[0])
     return renderindex(posts,"Home",session)
 
 @app.route("/user/<name>")
@@ -143,8 +146,8 @@ def images(filename):
         abort(404)
 
 
-@app.route("/about")
-def about():
+@app.route("/info")
+def info():
     return renderindex(open("templates/about.html").read(),"About",session)
 
 @app.route("/login/")
@@ -386,6 +389,9 @@ def user():
         <br>
         <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
         <br>
+        <label for="id3">Channels (commas to seperate)</label>
+        <input class=input type="text" id=id3 name="tags" required>
+        <br>
         <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
     </form>
     </center>
@@ -428,6 +434,81 @@ def user():
     else:
         return f"{request.method} requests don't work on this url"
 
+@app.route("/channels/")
+def channels():
+    channel = open("templates/genposts.html", "r").read().replace("^api^","channelget").replace("^counter^","channelcount")
+    return renderindex(channel,"Channels",session) 
+
+@app.route("/channelget/<id>")
+def channelget(id):
+    try:
+        return getData("json/catagories.json")[str(id)]
+    except IndexError:
+        return "null"
+
+@app.route("/channelcount/")
+def channelcount():
+    return str(len(getData("json/catagories.json")))
+
+# DSI CODE
+def DSIrenderindex(page,title,session):
+    index = open("templates/dsi/index.html","r").read()
+    users = json.loads(open("json/users.json","r").read())
+    try:
+        userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]+".png"
+    except:
+        userpfp = "/images/bark-it-small.png"
+    user = session.get("name", "Login")
+    return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT DSI - "+title).replace("^pfp^",userpfp)
+@app.route("/ds/")
+def DSIhome():
+    start = time()
+    posts = open("templates/dsi/dsiposts.html", "r").read()
+    end = time()
+    processing_time = end - start
+    return DSIrenderindex(posts,"Home",session)           
+@app.route("/ds/<page>")
+def DSIpage(page):
+    match page:
+        case "post":
+            return DSIrenderindex("""<div><center><form action="/sendpost"><label for="id1">Title </label>
+                                            <br>
+                                            <input class=input type="text" id="id1" name="title" required>
+                                            <br>
+                                            <label for="id2">Content  </label>
+                                            <br>
+                                            <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
+                                            <br>
+                                            <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
+                                        </form>
+                                        </center>
+                                    </div>"""
+                                    ,"post",session)
+    
+        case "login":
+            return DSIrenderindex("""
+                                    <div>
+                                        <form action="/login">
+                                            <label for="id1">Username </label>
+                                            <input class=input type="text" id="id1" name="name">
+                                            <br>
+                                            <label for="id2">Password  </label>
+                                            <input class=input type="password" id="id2" name="pass">
+                                            <br>
+                                            <input type="submit" value="Submit">
+                                        </form>
+                                    </div>"""
+                                    ,"Login",session)
+        case "info":
+            return "info page"
+        case "browse":
+            id = request.args.get("postid")
+            posts = open("templates/dsi/dsipostbrowse.html", "r").read()
+            postjson = json.loads(loadjson()).get(id, "nill")
+            if id == None:
+                return f'<meta http-equiv="Refresh" content="0; url=/ds/browse?postid={str(len(json.loads(loadjson()))-1)}"/>'
+            return DSIrenderindex(posts.replace("^user^",postjson["author"]).replace("^title^",postjson["title"]).replace("^content^",postjson["content"]).replace("^right^",str(int(id)-1)).replace("^left^",str(int(id)+1)),"Browser",session)
+    
 
 
 if __name__ == "__main__":
