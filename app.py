@@ -100,12 +100,42 @@ def getuserprofile(user):
     users = json.loads(open("json/users.json","r").read())
     return "/imagedatabase/"+users[user]["pfp"]+".png"
 
+def makepost(name,request):
+    title = request.args.get("title")
+    content = request.args.get("post")
+    if title == None or content == None:
+        return "do not make an empty post"
+    posts = getData("json/posts.json")
+    users = getData("json/users.json")
+    newPostId = max(map(int, posts.keys())) + 1
+    postfile = open("json/posts.json", "w")
+    usersfile = open("json/users.json","w")
+    posts.update(
+        {
+            newPostId: {
+                "title": title,
+                "author": name,
+                "content": content.replace("<","&lt;").replace(">","&gt;"),
+                "likes": 1,
+                "locked": False,
+                "comments": {},
+            }
+        }
+    )
+    length = len(users[session["name"]]["posts"])
+    users[session["name"]]["posts"].update(
+        {length: {"id":str(newPostId)}}
+    )
+    postfile.write(json.dumps(posts, indent=2))
+    usersfile.write(json.dumps(users,indent=2))
+    print(f"Name: {name}, Title: '{title}'\nContent: {content}")
+
 @app.route("/")
 def main(name=None):
     global processing_time
     global posts
     start = time()
-    posts = open("templates/genposts.html", "r").read().replace("^api^","postget").replace("^counter^","postcount")
+    posts = open("templates/genposts.html", "r").read().replace("^api^","postget").replace("^counter^","api/postcount")
     end = time()
     processing_time = end - start
     user_agent = request.headers.get('User-Agent')
@@ -116,15 +146,51 @@ def main(name=None):
 def userpage(name):
     if name == None:
         return "invalid user"
-    posts = open("templates/genposts.html", "r").read().replace("^api^","userget/"+name).replace("^counter^","/postcountuser/"+str(name))
+    posts = open("templates/genposts.html", "r").read().replace("^api^","api/userget/"+name).replace("^counter^","/postcountuser/"+str(name))
     return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name)
 
-@app.route("/userget/<user>/<id>")
-def userget(user,id):
-    try:
-        return json.loads(loadjson())[getData("json/users.json")[user]["posts"][id]["id"]]
-    except KeyError:
-        return "null"
+@app.route("/api/<api>")
+def api(api):
+    arg = request.args.get("arg")
+    match api:
+        case "postcountuser":
+            return str(len(getData("json/users.json")[arg]["posts"]))
+        case "userget":
+            id = request.args.get("id")
+            try:
+                return json.loads(loadjson())[getData("json/users.json")[arg]["posts"][id]["id"]]
+            except KeyError:
+                return "null"
+
+        case "postget":
+            return json.loads(loadjson()).get(arg, "nill")
+
+        case "postcount":
+            return str(len(json.loads(loadjson())))
+            
+        case "makepost":
+            userread = json.loads(open("json/users.json", "r").read())
+            name = request.args.get("name")
+            password = request.args.get("pass")
+            if name == None or password == None:
+                return "provide a name or password when making an api post"
+            else:
+                try:
+                    if checkban(name):
+                        return "you are banned"
+                except KeyError:
+                    return "provide an EXISTING name please"
+                decrypt = cryptocode.decrypt(userread[name]["password"], password)
+                if decrypt == password:
+                    makepost(name,request)
+                    return 
+                else:
+                    return "provide a CORRECT name or password when making an api post"
+            
+            
+
+                
+
 
 @app.route("/images/<path:filename>")
 def images(filename):
@@ -317,18 +383,9 @@ def searchpage():
 
 
 # API
-@app.route("/postget/<id>/")
-def postget(id):
-    return json.loads(loadjson()).get(id, "nill")
 
+    
 
-@app.route("/postcount")
-def postcount():
-    return str(len(json.loads(loadjson())))
-
-@app.route("/postcountuser/<user>")
-def postcountuser(user):
-    return str(len(getData("json/users.json")[user]["posts"]))
 
 @app.route("/imagedatabase/<path:filename>")
 def profiledatabase(filename):
@@ -405,50 +462,27 @@ def user():
             return "post size is too big"
 
         #token = "0"
-        posts = getData("json/posts.json")
-        users = getData("json/users.json")
-        newPostId = max(map(int, posts.keys())) + 1
-        postfile = open("json/posts.json", "w")
-        usersfile = open("json/users.json","w")
-        posts.update(
-            {
-                newPostId: {
-                    "title": title,
-                    "author": sessname,
-                    "content": content.replace("<","&lt;").replace(">","&gt;"),
-                    "likes": 1,
-                    "locked": False,
-                    "comments": {},
-                }
-            }
-        )
-        length = len(users[session["name"]]["posts"])
-        users[session["name"]]["posts"].update(
-            {length: {"id":str(newPostId)}}
-        )
-        postfile.write(json.dumps(posts, indent=2))
-        usersfile.write(json.dumps(users,indent=2))
-        print(f"Name: {sessname}, Title: '{title}'\nContent: {content}")
+        makepost(sessname,request)
         return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
 
     else:
         return f"{request.method} requests don't work on this url"
-
+## broken so I might as well not port to the api
 @app.route("/channels/")
 def channels():
     channel = open("templates/genposts.html", "r").read().replace("^api^","channelget").replace("^counter^","channelcount")
     return renderindex(channel,"Channels",session) 
 
-@app.route("/channelget/<id>")
-def channelget(id):
-    try:
-        return getData("json/catagories.json")[str(id)]
-    except IndexError:
-        return "null"
-
-@app.route("/channelcount/")
-def channelcount():
-    return str(len(getData("json/catagories.json")))
+##@app.route("/channelget/<id>")
+##def channelget(id):
+##    try:
+##        return getData("json/catagories.json")[str(id)]
+##    except IndexError:
+##        return "null"
+##
+##@app.route("/channelcount/")
+##def channelcount():
+##    return str(len(getData("json/catagories.json")))
 
 # DSI CODE
 def DSIrenderindex(page,title,session):
