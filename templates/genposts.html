@@ -23,11 +23,15 @@ document.addEventListener("DOMContentLoaded", function() {
             break
           }
           let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/^api^/"+postvar, false); 
+          console.log("/api/^api^?arg="+postvar)
+          xmlHttpReq.open("GET", "/api/^api^?arg="+postvar, false); 
           xmlHttpReq.send(null);
         if (xmlHttpReq.responseText !== "null") {
           console.log(nullcheck)
-          var postarray = JSON.parse(xmlHttpReq.responseText)
+          try {
+            var postarray = JSON.parse(xmlHttpReq.responseText)
+          } catch {}
+          
           
           content.innerHTML += `<center><div class=post><a href=/user/{{user}}><textarea class=name rows=\"2\" readonly>Posted by {{user}}</textarea></a><br><textarea class=name rows="2"   readonly>{{title}}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><a href=/comments/{PostID}><button>Comments ( WIP)</button>
             </a></br></div> </center>`.replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]); 
@@ -48,7 +52,7 @@ function scroller() {
             break
           }
           let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/^api^/"+postvar, false); 
+          xmlHttpReq.open("GET", "/api/^api^/"+postvar, false); 
           xmlHttpReq.send(null);
         if (xmlHttpReq.responseText !== "null") {
           console.log(nullcheck)

@@ -36,6 +36,7 @@
 		border-style: solid;
 		border-radius: 10px;
 		border-color: #F97B72;
+		border-bottom-color: #FCFFB2;
 		border-width: 2px;
 		background-color: #F97B72;
 		float: left;
@@ -56,6 +57,7 @@
 		border-style: solid;
 		border-radius: 10px;
 		border-color: #F97B72;
+		border-bottom-color: #FCFFB2;
 		border-width: 2px;
 		background-color: #282929;
 		
@@ -73,6 +75,7 @@
 		border-style: solid;
 		border-radius: 10px;
 		border-color: #F97B72;
+		border-bottom-color: #FCFFB2;
 		border-width: 2px;
 		background-color: #282929;
 		right: 0px;
@@ -135,6 +138,7 @@
 		border-style: solid;
 		border-radius: 10px;
 		border-color: #F97B72;
+		border-bottom-color: #FCFFB2;
 		border-width: 2px;
 		background-color: #000000;
 		
@@ -242,8 +246,11 @@
 			sidebar.style.width = "95%"
 			//toggle_button.style.height = "35px"
 			toggle_button.src = "/images/arrow.png"
-			posts.style.width = "82%"
-			posts.style.left = "15%"
+			try {
+				posts.style.width = "82%"
+				posts.style.left = "15%"
+			} catch {}
+
 			toggle_sidebar = false
 		} else {
 			sidebar2.style.display = "block"
@@ -251,8 +258,10 @@
 			sidebar.style.width = "50%"
 			//toggle_button.style.height = "57px"
 			toggle_button.src = "/images/arrow-back.png"
-			posts.style.width = "75%"
-			posts.style.left = "22%"
+			try {
+				posts.style.width = "75%"
+				posts.style.left = "22%"
+			} catch {}
 			toggle_sidebar = true
 		}
 		
@@ -289,7 +298,7 @@
 				<center><a class="active" href="/" ><img id=logo class=logo src="^pfp^"></a></center>
 				<a class=sidebutton href="/login"><button>^profile^</button></a>
 				<a class=sidebutton href="/sendpost"><button>Post</button></a>
-    			<a class=sidebutton href="/about"><button>About</button></a>
+    			<a class=sidebutton href="/info"><button>Guidelines & more</button></a>
     			
     	</div>
 
