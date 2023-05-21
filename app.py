@@ -97,8 +97,11 @@ def renderindex(page,title,session):
 
 
 def getuserprofile(user):
-    users = json.loads(open("json/users.json","r").read())
-    return "/imagedatabase/"+users[user]["pfp"]+".png"
+    try:
+        users = json.loads(open("json/users.json","r").read())
+        return "/imagedatabase/"+users[user]["pfp"]+".png"
+    except KeyError:
+        return "/imagedatabase/0.png"
 
 def makepost(name,request):
     title = request.args.get("title")
@@ -129,13 +132,39 @@ def makepost(name,request):
     postfile.write(json.dumps(posts, indent=2))
     usersfile.write(json.dumps(users,indent=2))
     print(f"Name: {name}, Title: '{title}'\nContent: {content}")
+    
 
+def makecomment(name,request):
+    content = request.args.get("content")
+    post = request.args.get("post")
+    if content == None:
+        return "do not make an empty comment"
+    if checkban(name):
+        return "you are banned"
+    users = getData("json/users.json")
+    posts = getData("json/posts.json")
+    newCommentId = len(posts[post]["comments"])
+    postfile = open("json/posts.json", "w")
+    posts[post]["comments"].update(
+        {
+            newCommentId: {
+                "author": name,
+                "content": content.replace("<","&lt;").replace(">","&gt;"),
+                "likes": 1,
+                "locked": False,
+                "comments": {},
+            }
+        }
+    )
+    postfile.write(json.dumps(posts, indent=2))
+
+  
 @app.route("/")
 def main(name=None):
     global processing_time
     global posts
     start = time()
-    posts = open("templates/genposts.html", "r").read().replace("^api^","postget").replace("^counter^","api/postcount")
+    posts = open("templates/genposts.html", "r").read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
     end = time()
     processing_time = end - start
     user_agent = request.headers.get('User-Agent')
@@ -146,7 +175,7 @@ def main(name=None):
 def userpage(name):
     if name == None:
         return "invalid user"
-    posts = open("templates/genposts.html", "r").read().replace("^api^","api/userget/"+name).replace("^counter^","/postcountuser/"+str(name))
+    posts = open("templates/genposts.html", "r").read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
     return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name)
 
 @app.route("/api/<api>")
@@ -156,12 +185,14 @@ def api(api):
         case "postcountuser":
             return str(len(getData("json/users.json")[arg]["posts"]))
         case "userget":
-            id = request.args.get("id")
+            postid = request.args.get("id")
             try:
-                return json.loads(loadjson())[getData("json/users.json")[arg]["posts"][id]["id"]]
+                return json.loads(loadjson())[getData("json/users.json")[arg]["posts"][postid]["id"]]
             except KeyError:
                 return "null"
 
+        case "getprofile":
+            return getuserprofile(arg)
         case "postget":
             return json.loads(loadjson()).get(arg, "nill")
 
@@ -186,11 +217,39 @@ def api(api):
                     return 
                 else:
                     return "provide a CORRECT name or password when making an api post"
+        case "sendpost":
+            sessname = session.get("name")
+            if sessname:
+                if checkban(sessname):
+                    return "you are banned"
+            else:
+                return renderindex("not logged in","Post",session)
             
+            title = request.args.get("title")
+            content = request.args.get("post")
+            if title == None or content == None:
+                return "No title or content isn't allowed in posts"       
+            if len(content) > 6000 or len(title) > 6000:
+                return "post size is too big"
+            makepost(sessname,request)
+            if request.args.get("device") == None:
+                return '<meta http-equiv="Refresh" content="0; url=/" />'
+            elif request.args.get("device") == "dsi":
+                return '<meta http-equiv="Refresh" content="0; url=/ds" />'
+        case "sendcomment":
+            name = session.get("name")
+            makecomment(name,request)
+            return "<meta http-equiv=\"Refresh\" content=\"0; url=/\" />"
+        case "comget":
+            identifier = request.args.get("id")
+            return json.loads(open("json/posts.json","r").read())[str(arg)]["comments"][str(identifier)]
+        case "comcount":
+            return str(len(json.loads(open("json/posts.json","r").read())[str(arg)]["comments"]))
             
-
-                
-
+@app.route("/comments/<post>")
+def commentdisplay(post):
+    posts = open("templates/genposts.html", "r").read().replace("^api^",f"comget?arg={post}&id=").replace("^counter^","/api/comcount?arg="+post).replace("mode = 0","mode = 1")
+    return renderindex(posts,"Home",session)
 
 @app.route("/images/<path:filename>")
 def images(filename):
@@ -218,34 +277,25 @@ def info():
 
 @app.route("/login/")
 def login():
-    form = """
-    <div class=posts>
-        <form action="/login">
-            <label for="id1">Username </label>
-            <input class=input type="text" id="id1" name="name">
-            <br>
-            <label for="id2">Password  </label>
-            <input class=input type="password" id="id2" name="pass">
-            <br>
-            <input type="submit" value="Submit">
-        </form>
-    </div>"""
     userread = json.loads(open("json/users.json", "r").read())
     name = request.args.get("name")
     password = request.args.get("pass")
     
     if name == None or password == None:
-        return renderindex(form,"Login",session)
+        return "You must have the username and password to be able to login"
     else:
-        if checkban(name):
-            return "you are banned"
+        try:
+            if checkban(name):
+                return "you are banned"
+        except KeyError:
+            return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
         decrypt = cryptocode.decrypt(userread[name]["password"], password)
         # if decrypt == False:
         # return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","<center><p>incorrect username or password</p></center> "+form)
         if decrypt == password:
             session["name"] = name
         else:
-            return renderindex("<center><p>incorrect username or password</p></center> "+ form,"Login",session)
+            return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
         return '<meta http-equiv="Refresh" content="0; url=/" />'
     
 
@@ -254,25 +304,12 @@ def login():
 def register():
 
     sessname = session.get("name", "Login")
-    form = """
-    <div class=posts>
-        <form action="/register">
-            <label for="id1">Username </label>
-            <input class=input type="text" id="id1" name="name">
-            <br>
-            <label for="id2">Password  </label>
-            <input class=input type="password" id="id2" name="pass">
-            <br>
-            <input type="submit" value="Submit">
-        </form>
-    </div>"""
-
     userread = json.loads(open("json/users.json", "r").read())
     name = request.args.get("name")
     password = request.args.get("pass")
 
     if name == None or password == None:
-        return renderindex(form,"Register",session)
+        return "You must have the username and password to be able to register"
     for item in userread:
         if name == item:
             return renderindex("<p>Name already taken</p> ","Register",session)
@@ -381,10 +418,8 @@ def searchpage():
     else:
         return renderindex(open("templates/search.html", "r").read(),"Search",session)
 
-
-# API
-
-    
+#@app.route("/post/<id>")
+#def postdisplay(id):
 
 
 @app.route("/imagedatabase/<path:filename>")
@@ -415,58 +450,7 @@ def uploadpfp():
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
-# @app.route("/comments/<id>/")
-# def comments(id):
-#    return render_template("index.html", posts=genpost(id))
 
-
-@app.route("/sendpost/", methods=["GET", "POST", "DELETE"])
-def user():
-    if request.method == "GET":
-        sessname = session.get("name")
-        if sessname:
-            if checkban(sessname):
-                return "you are banned"
-        else:
-            return renderindex("not logged in","Post",session)
-
-        title = request.args.get("title")
-        content = request.args.get("post")
-
-        if title == None:
-            form = """
-<div class=posts>
-    <center>
-    <form action="/sendpost">
-        <label for="id1">Title </label>
-        <br>
-        <input class=input type="text" id="id1" name="title" required>
-        <br>
-        <label for="id2">Content  </label>
-        <br>
-        <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
-        <br>
-        <label for="id3">Channels (commas to seperate)</label>
-        <input class=input type="text" id=id3 name="tags" required>
-        <br>
-        <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
-    </form>
-    </center>
-</div>"""
-            name = session["name"]
-            if name == None:
-                name = "Login"
-                return renderindex("not logged in","Post",session)
-            return renderindex(form,"Post",session)          
-        if len(content) > 6000 or len(title) > 6000:
-            return "post size is too big"
-
-        #token = "0"
-        makepost(sessname,request)
-        return '<meta http-equiv="Refresh" content="0; url=/sendpost" />'
-
-    else:
-        return f"{request.method} requests don't work on this url"
 ## broken so I might as well not port to the api
 @app.route("/channels/")
 def channels():
@@ -514,6 +498,10 @@ def DSIpage(page):
                                             <textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required></textarea>
                                             <br>
                                             <input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
+                                            <br>
+                                            <select name="device" id="device">
+                                                <option value="dsi">DSI</option>
+                                            </select>
                                         </form>
                                         </center>
                                     </div>"""
