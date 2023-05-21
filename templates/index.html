@@ -18,7 +18,7 @@
 		background-color: #282929;
 		transition: 100ms;
 		border-style: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-color: #282929;
 		color: white;		
 	}
@@ -34,7 +34,7 @@
 		height: 95%;
 		position: fixed;
 		border-style: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-color: #F97B72;
 		border-bottom-color: #FCFFB2;
 		border-width: 2px;
@@ -55,7 +55,7 @@
 		height: 88%;
 		position: sticky;
 		border-style: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-color: #F97B72;
 		border-bottom-color: #FCFFB2;
 		border-width: 2px;
@@ -73,7 +73,7 @@
 		height: 88%;
 		position: absolute;
 		border-style: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-color: #F97B72;
 		border-bottom-color: #FCFFB2;
 		border-width: 2px;
@@ -133,10 +133,9 @@
 		transition: 100ms;
 		left: 22%;
 		width: 75%;
-		height: auto;		
 		position: absolute;
 		border-style: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-color: #F97B72;
 		border-bottom-color: #FCFFB2;
 		border-width: 2px;
@@ -149,20 +148,31 @@
 		transition: 100ms;
 		margin-bottom: 10px;
 		border: solid;
-		border-radius: 10px;
+		border-radius: 3px;
 		border-width: 2px;
-		border-color: #282929;
+		border-color: #000000;
 		font-family: monospace;
-		
-		width: 90%;
+		width: 75%;
 		position: relative;
 	}
 	.post:hover {
 		filter: brightness(100%);
-		border-width: 2px;
+		border-width: 3px;
 		border-color: #FF5A51;
 		transition: 100ms;
 	}
+	.postbox {
+		width: 25%;
+		margin-left: auto;
+    	margin-right: auto;
+		
+	}
+	.arrow {
+		animation-name: toright;
+	}
+	@keyframes toright {
+    0%   { background-image: url('/images/arrow.png'); } 
+}
 
 	input {
 		filter: brightness(100%);
@@ -208,7 +218,7 @@
 		height: 100px;
 		color: white;
 		border: none;
-		border-radius: 10px;
+		border-radius: 3px;
 		transition: 100ms;
 	}
 	button:hover {
@@ -218,7 +228,7 @@
 		color: white;
 		
 		
-		border-radius: 10px;
+		border-radius: 3px;
 		transition: 100ms;
 	}
 	textarea {
@@ -226,7 +236,7 @@
 		width: 80%;
 		height: auto;
 		color: white;
-		border-radius:5px;
+		border-radius: 3px;
 		resize: none;
 		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 	}
@@ -234,6 +244,7 @@
 </style>
 <script type="text/javascript">
 	var toggle_sidebar = true
+	var replyid = 0
 	function onsidebarclick() {
 		const sidebar2 = document.getElementById("sidebar2")
 		const sidebar = document.getElementById("sidebar")
@@ -266,15 +277,81 @@
 		}
 		
 	}
+
+	var toggle_floating_window = 1
+	function toggle_window(window) {
+		const postbox = document.getElementById("postbox")
+		const loginbox = document.getElementById("loginbox")
+		const registerbox = document.getElementById("registerbox")
+		const searchbox = document.getElementById("searchbox")
+		const replybox = document.getElementById("replybox")
+		toggle_floating_window = window
+		console.log(toggle_floating_window)
+		postbox.style.display = "none"
+		loginbox.style.display = "none"
+		registerbox.style.display = "none"
+		searchbox.style.display = "none"
+		replybox.style.display = "none"
+		switch(toggle_floating_window) {
+			case 1:
+				postbox.style.display = "block"
+				break
+			case 2:
+				loginbox.style.display = "block"
+				break
+			case 3:
+				registerbox.style.display = "block"
+				break
+			case 4:
+				searchbox.style.display = "block"
+				break
+			case 5: 
+				replybox.style.display = "block"
+				break
+		}		
+	}
+
+	function save() {
+		const postbox = document.getElementById("postbox")
+		const postload = document.getElementById("postload")
+		
+		localStorage.setItem("title", postload.elements[0].value);
+		localStorage.setItem("content", postload.elements[1].value);
+		toggle_window(0)
+	}
+	function load() {
+		const postload = document.getElementById("postload")
+		if (localStorage.getItem("title") != null) {
+			postload.elements[0].value = localStorage.getItem("title")
+			postload.elements[1].value = localStorage.getItem("content")
+		}
+
+		toggle_window(1)		
+	}
+
+	function reply(postid) {
+		replyid = postid
+		toggle_window(5)
+	}
+	function replychange() {
+		console.log("test")
+		var text = document.getElementById("replytext").value;
+		var form = this
+		form.action = "/api/sendcomment?post="+replyid+"&content="+text
+		console.log(form.action);
+  		event.preventDefault();
+		window.location.replace(form.action);
+	}
+
 </script>
 
 <body>
 	<div class=sidearea id=sidearea>
-		<div style="width: 50%; background-color: #282929; border-radius: 10px; height: 10%;">
+		<div style="width: 50%; background-color: #282929; border-radius: 3px; height: 10%;">
 			<center><img src="/images/bark-it.png" style=" object-fit: cover; width: 100%;"></center>
 			
 		</div>
-		<div onclick="onsidebarclick()" style="width: 50%; background-color: #282929; border-radius: 10px; right: 0%; color: white; height: 10%; top: 0%; position: absolute;">
+		<div onclick="onsidebarclick()" style="width: 50%; background-color: #282929; border-radius: 3px; right: 0%; color: white; height: 10%; top: 0%; position: absolute;">
 			<center>
 				<button style="height: 57px;"> 
 					<img id=toggle_button style="width: 12.5%;" src="/images/arrow-back.png">
@@ -283,9 +360,9 @@
 		</div>
 		<div class=sidebar2 id=sidebar2>
 				<a class=sidebutton href="/channels"><button>Channels</button></a>
-				<a class=sidebutton href="/search"><button>Search</button></a>
-    			<a class=sidebutton href="/report"><button>Report</button></a>
-    			<a class=sidebutton href="/register"><button>Register</button></a>
+				<button class=sidebutton onclick=toggle_window(4)>Search</button>
+    			<a class=sidebutton href="/recent"><button>Recent</button></a>
+    			<button class=sidebutton onclick=toggle_window(3)>Register</button>
     			<center>
     			<a class="active" href="/settings" >
     			<div class="settings">
@@ -296,8 +373,8 @@
 		</div>
 		<div class=sidebar id="sidebar">
 				<center><a class="active" href="/" ><img id=logo class=logo src="^pfp^"></a></center>
-				<a class=sidebutton href="/login"><button>^profile^</button></a>
-				<a class=sidebutton href="/sendpost"><button>Post</button></a>
+				<button class=sidebutton onclick=toggle_window(2)>^profile^</button>
+				<button class=sidebutton onclick=load()>Post</button>
     			<a class=sidebutton href="/info"><button>Guidelines & more</button></a>
     			
     	</div>
@@ -308,9 +385,112 @@
 
 
 
-
 ^posts^
 
+<center>
+	<div class="postbox" style="display: none; width: 50%;" id="postbox">
+		<div class=post>
+			<img src="/images/bark-it-x.png" onclick="save()" class="logo" style="width:35px;float:right;">
+			<br>
+			<br>
+			<p>Post</p>
+			<form action="/api/sendpost" id="postload">
+				<label for="id1">Title </label>
+				<br>
+				<input class=input type="text" id="id1" name="title" required id="titlefield">
+				<br>
+				<label for="id2">Content  </label>
+				<br>
+				<textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required id="contentfield"></textarea>
+				<br>
+				<label for="id3">Channels (commas to seperate)</label>
+				<input class=input type="text" id=id3 name="tags" required>
+				<br>
+				<input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="loginbox">
+		<div class="post">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Login</p>
+			<form action="/login">
+				<label for="id1">Username </label>
+				<input class=input type="text" id="id1" name="name">
+				<br>
+				<label for="id2">Password  </label>
+				<input class=input type="password" id="id2" name="pass">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="registerbox">
+		<div class="post">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Register</p>
+			<form action="/register">
+				<label for="id1">Username </label>
+				<input class=input type="text" id="id1" name="name">
+				<br>
+				<label for="id2">Password  </label>
+				<input class=input type="password" id="id2" name="pass">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="searchbox">
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<div class="post" style="right:75%;">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Search</p>
+			<form action="/search">
+				<label for="id">Type: </label>
+				
+				<select name="object" id="Channel">
+					<option>posts</option>
+					<option>channel</option>
+				</select>
+				<br>
+				<label for="id">Search:  </label>
+				<input type="text" id="Search" name="search">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	
+	<div class="postbox" style="display: none; width: 50%;" id="replybox">
+		<div class=post>
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:35px;float:right;">
+			<br>
+			<br>
+			<p>Reply</p>
+			<form onsubmit="replychange()" id="postload">
+				<label for="id2">Content  </label>
+				<br>
+				<textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="replytext" name="content" required id="contentfield"></textarea>
+				<br>
+				<button type="submit" id="submitButton">Submit</button>
+			</form>
+		</div>
+	</div>
+</center>
 </body>
 
 
