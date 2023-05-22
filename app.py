@@ -86,14 +86,14 @@ def checkban(user):
         return False
 
 def renderindex(page,title,session):
-    index = open("templates/index.html","r").read()
-    users = json.loads(open("json/users.json","r").read())
-    try:
-        userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]+".png"
-    except:
-        userpfp = "/images/bark-it-small.png"
-    user = session.get("name", "Login")
-    return index.replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
+    with open("templates/index.html","r") as index:
+        users = json.loads(open("json/users.json","r").read())
+        try:
+            userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]+".png"
+        except:
+            userpfp = "/images/bark-it-small.png"
+        user = session.get("name", "Login")
+        return index.read().replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
 
 
 def getuserprofile(user):
@@ -132,7 +132,8 @@ def makepost(name,request):
     postfile.write(json.dumps(posts, indent=2))
     usersfile.write(json.dumps(users,indent=2))
     print(f"Name: {name}, Title: '{title}'\nContent: {content}")
-    
+    #postsfile.close()
+    #usersfile.close()
 
 def makecomment(name,request):
     content = request.args.get("content")
@@ -157,25 +158,27 @@ def makecomment(name,request):
         }
     )
     postfile.write(json.dumps(posts, indent=2))
-
+    postfile.close()
   
 @app.route("/")
 def main(name=None):
     global processing_time
     global posts
     start = time()
-    posts = open("templates/genposts.html", "r").read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
+    with open("templates/genposts.html", "r") as load:
+        posts = load.read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
     end = time()
     processing_time = end - start
     user_agent = request.headers.get('User-Agent')
-    print(user_agent.split('(')[1].split(')')[0])
+    #print(user_agent.split('(')[1].split(')')[0])
     return renderindex(posts,"Home",session)
 
 @app.route("/user/<name>")
 def userpage(name):
     if name == None:
         return "invalid user"
-    posts = open("templates/genposts.html", "r").read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
+    with open("templates/genposts.html", "r") as load:
+        posts = load.read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
     return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name)
 
 @app.route("/api/<api>")
@@ -194,7 +197,12 @@ def api(api):
         case "getprofile":
             return getuserprofile(arg)
         case "postget":
-            return json.loads(loadjson()).get(arg, "nill")
+            post = json.loads(loadjson()).get(arg, "nill")
+            if post == "nill":
+                return "nill"
+            #print('{"author":"'+post["author"]+'", "content":"'+post["content"]+'","title":"'+post["title"]+'"}')
+            
+            return {"author":post["author"],"content":post["content"],"title":post["title"]}
 
         case "postcount":
             return str(len(json.loads(loadjson())))
