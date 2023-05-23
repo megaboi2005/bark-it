@@ -1,0 +1,6 @@
+0.01 - bug fixes with expermental comments(unreleased)
+	*
+0.02  - comments
+	*
+0.03 - multiple format support for profile pictures
+	*0.03_1 - quick fix with registering causing the user to redirect to an errored login page.
