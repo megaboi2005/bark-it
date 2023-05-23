@@ -88,8 +88,10 @@ def checkban(user):
 def renderindex(page,title,session):
     with open("templates/index.html","r") as index:
         users = json.loads(open("json/users.json","r").read())
+        
         try:
-            userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]+".png"
+            #extension = users[session["name"]]["pfp"].split(".")[len(users[session["name"]]["pfp"].split("."))-1]
+            userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
         except:
             userpfp = "/images/bark-it-small.png"
         user = session.get("name", "Login")
@@ -99,7 +101,9 @@ def renderindex(page,title,session):
 def getuserprofile(user):
     try:
         users = json.loads(open("json/users.json","r").read())
-        return "/imagedatabase/"+users[user]["pfp"]+".png"
+        extension = users[user]["pfp"].split(".")[len(users[user]["pfp"].split("."))-1]
+        print("/imagedatabase/"+users[user]["pfp"])
+        return "/imagedatabase/"+users[user]["pfp"]
     except KeyError:
         return "/imagedatabase/0.png"
 
@@ -330,7 +334,7 @@ def register():
                 "password": password, 
                 "banned": "False",
                 "posts": {},
-                "pfp": "0"
+                "pfp": "0.png"
                 }
             
         }
@@ -439,22 +443,29 @@ def profiledatabase(filename):
 
 @app.route('/uploadprofile', methods=['POST'])
 def uploadpfp():
-    
+    supported_extensions = ["apng","avif","gif","jpg","jpeg","jfif","pjpeg","pjp","png","svg","webp"]
     if session.get("name","nope") == "nope":
         return '<meta http-equiv="Refresh" content="0; url=/"/>'
     f = request.files['file']
     userread = getData("json/users.json")
     
     extension = f.filename.split(".")[len(f.filename.split("."))-1]
-    if not extension == "png":
-        return "extension must be a png"
+    f.filename.split(".")[len(f.filename.split("."))-1]
+    if not extension in supported_extensions:
+        return "extension isn't supported!"
     if  userread[session["name"]]["pfp"] == "0":
         userwrite = open("json/users.json","w")
         f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
-        userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1)
+        userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1) + "."+extension
         userwrite.write(json.dumps(userread,indent=2))
     else:
-        f.save(os.path.join("imagedatabase", userread[session["name"]]["pfp"]+"."+extension))
+        if not userread[session["name"]]["pfp"].split(".")[len(userread[session["name"]]["pfp"].split("."))-1] == extension:
+            userwrite = open("json/users.json","w")
+            f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
+            userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1) + "."+extension
+            userwrite.write(json.dumps(userread,indent=2))
+            return '<meta http-equiv="Refresh" content="0; url=/"/>'
+        f.save(os.path.join("imagedatabase", extension+"/"+userread[session["name"]]["pfp"]))
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
@@ -542,5 +553,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8080)
+    app.run("0.0.0.0", 80)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
+    app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
