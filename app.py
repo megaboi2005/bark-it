@@ -342,7 +342,7 @@ def register():
     )
 
     userwrite.write(json.dumps(userread,indent=2))
-    return '<meta http-equiv="Refresh" content="2; url=/login"/>'
+    return '<meta http-equiv="Refresh" content="2; url=/"/>'
 
 
 @app.route("/settings/")
@@ -553,6 +553,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 80)
+    app.run("0.0.0.0", 8080)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
