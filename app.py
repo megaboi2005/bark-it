@@ -465,7 +465,7 @@ def uploadpfp():
             userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1) + "."+extension
             userwrite.write(json.dumps(userread,indent=2))
             return '<meta http-equiv="Refresh" content="0; url=/"/>'
-        f.save(os.path.join("imagedatabase", extension+"/"+userread[session["name"]]["pfp"]))
+        f.save(os.path.join("imagedatabase", userread[session["name"]]["pfp"]))
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
@@ -553,6 +553,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8080)
+    app.run("0.0.0.0", 80)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000

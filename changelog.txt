@@ -4,3 +4,4 @@
 	*
 0.03 - multiple format support for profile pictures
 	*0.03_1 - quick fix with registering causing the user to redirect to an errored login page.
+	*0.03_2 - sad bug where bark-it would error when you uploaded a profile  picture with the same extension.
