@@ -18,6 +18,7 @@ from Levenshtein import distance
 from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
+import time
 global post
 
 post = open("templates/post.html", "r").read()
@@ -126,6 +127,7 @@ def makepost(name,request):
                 "likes": 1,
                 "locked": False,
                 "comments": {},
+                "time" : time.time()
             }
         }
     )
@@ -168,11 +170,8 @@ def makecomment(name,request):
 def main(name=None):
     global processing_time
     global posts
-    start = time()
     with open("templates/genposts.html", "r") as load:
         posts = load.read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
-    end = time()
-    processing_time = end - start
     user_agent = request.headers.get('User-Agent')
     #print(user_agent.split('(')[1].split(')')[0])
     return renderindex(posts,"Home",session)
@@ -205,9 +204,10 @@ def api(api):
             if post == "nill":
                 return "nill"
             #print('{"author":"'+post["author"]+'", "content":"'+post["content"]+'","title":"'+post["title"]+'"}')
-            
-            return {"author":post["author"],"content":post["content"],"title":post["title"]}
-
+            try: 
+                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"]}
+            except KeyError:
+                return {"author":post["author"],"content":post["content"],"title":post["title"]}
         case "postcount":
             return str(len(json.loads(loadjson())))
             
@@ -330,7 +330,7 @@ def register():
     
     userread.update(
         {
-            name.replace(" ","_"): {
+            name : {
                 "password": password, 
                 "banned": "False",
                 "posts": {},
