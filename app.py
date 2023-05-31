@@ -182,8 +182,11 @@ def userpage(name):
         return "invalid user"
     with open("templates/genposts.html", "r") as load:
         posts = load.read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
-    return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name)
-
+    users = json.loads(open("json/users.json","r").read())
+    try:
+        return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
+    except KeyError:
+        return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^","Hello World")
 @app.route("/api/<api>")
 def api(api):
     arg = request.args.get("arg")
@@ -332,6 +335,7 @@ def register():
         {
             name : {
                 "password": password, 
+                "bio" : "",
                 "banned": "False",
                 "posts": {},
                 "pfp": "0.png"
@@ -377,7 +381,15 @@ def chngsettings(setting):
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             else:
                 return "wrong password"
-
+        case "changebio":
+            bio = request.args.get("bio")
+            if bio == "":
+                return '<meta http-equiv="Refresh" content="0; url=/" />'
+            users = json.loads(open("json/users.json","r").read())
+            users[sessname]["bio"] = bio
+            with open("json/users.json","w") as userwrite:
+                userwrite.write(json.dumps(users,indent=2))
+                return '<meta http-equiv="Refresh" content="0; url=/" />'
         case "adminban":
             if not sessname == "admin":
                 return "you are not an admin"
