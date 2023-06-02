@@ -1,6 +1,14 @@
-import json
-from time import time
+"""
+    Bark-It sourc code, IDK change this to what you like.
+"""
+
+# Imports
 import cryptocode
+import random
+import json
+import time
+import os
+
 from flask import (
     Flask,
     abort,
@@ -10,102 +18,78 @@ from flask import (
     send_file,
     send_from_directory,
     url_for,
+    session
 )
+
 from werkzeug.datastructures import ImmutableMultiDict
-from flask import session
-from random import randrange
-from Levenshtein import distance
 from werkzeug.utils import secure_filename
-import os
 from urllib.parse import urlparse
-import time
+from Levenshtein import distance
+
 global post
 
 post = open("templates/post.html", "r").read()
-app = Flask(__name__,static_url_path='/files',static_folder='static')
-app.secret_key = b"secretkey"
+app = Flask(__name__, static_url_path="/files", static_folder="static")
+app.secret_key = b'super_secret_key'
 
 
-def loadjson():
-    return open("json/posts.json", "r").read()
+def get_post_json() -> str:
+    """
+        Loads the post json file
+    """
+    with open("json/posts.json", "r") as file:
+        return file.read()
 
 
-def filter(var):
-    """Sanitizes user input"""
-    return (
-        var.replace("\\", "&#92;")
-        .replace('"', "&quot;")
-        .replace("'", "&#39;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .strip()
-    )
-
-
-def genposts(page):
-    output = ""
-    posts = loadjson()
-    for a in range(3):
-        pcount = len(posts) - a - int(page)
-        if posts.get(f"{pcount}") == None:
-            continue
-        output += (
-            post.replace(
-                "^user^", str(posts[f"{pcount}"].get("author", "Unknown User"))
-            )
-            .replace("^title^", str(posts[f"{pcount}"].get("title", "Unknown Title")))
-            .replace(
-                "^content^", str(posts[f"{pcount}"].get("content", ""))
-            )
-            .replace("{PostID}", str(pcount))
-        )
-
-    return output
-
-
-def genpost(id):
-    postload = json.loads(open("json/posts.json", "r").read()).get(id, {})
-    return (
-        post.replace("^user^", postload.get("author", "Unknown User"))
-        .replace("^title^", postload.get("title", "Unknown Title"))
-        .replace("^content^", postload.get("content", ""))
-        .replace("^right^", f"/posts/{id-1}")
-        .replace("^left^", f"/posts/{id-1}")
-    )
-
-
-def getData(file):
-    """Gets the json data from {file}"""
+def get_json_data(file: str) -> dict | list:
+    """
+        Gets the json data from {file}
+    """
     return json.loads(open(file, "r").read())
 
 
-def checkban(user):
-    userread = json.loads(open("json/users.json", "r").read())
-    if userread[user].get("banned") == "True":
-        return True
-    else:
-        return False
+def check_if_banned(user: str) -> bool:
+    """
+        LAG WARNING!
+        Returns a boolean value depending on if a user is banned or not
+    """
+    with open("json/users.json", "r") as file:
+        users = json.load(file)
 
-def renderindex(page,title,session):
-    with open("templates/index.html","r") as index:
-        users = json.loads(open("json/users.json","r").read())
-        
-        try:
-            #extension = users[session["name"]]["pfp"].split(".")[len(users[session["name"]]["pfp"].split("."))-1]
-            userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
-        except:
-            userpfp = "/images/bark-it-small.png"
-        user = session.get("name", "Login")
-        return index.read().replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
+    return users[user].get("banned")
 
 
-def getuserprofile(user):
+def render_index(page: str, title: str, session) -> str:
+    """
+        Returns a index page template.
+    """
+    with open("json/users.json", "r") as file:
+        users = json.load(file)
+
+    profile_picture = "/imagedatabase/" + users[session["name"]]["pfp"]
+
+    with open("templates/index.html","r") as file:
+        index = file.read()
+
+    return (
+        index
+        .replace("^posts^", page)
+        .replace("^profile^", session.get("name", "Login"))
+        .replace("^title^", "Bark-IT - " + title)
+        .replace("^pfp^", profile_picture)
+    )
+
+
+def get_user_profile_picture(user):
+    """
+        Returns the path to a user's profile picture.
+    """
+    with open("json/users.json", "r") as file:
+        users = json.load(file)
+
     try:
-        users = json.loads(open("json/users.json","r").read())
-        extension = users[user]["pfp"].split(".")[len(users[user]["pfp"].split("."))-1]
-        print("/imagedatabase/"+users[user]["pfp"])
-        return "/imagedatabase/"+users[user]["pfp"]
-    except KeyError:
+        return "/imagedatabase/" + users[user]["pfp"]
+    except:
         return "/imagedatabase/0.png"
 
 def makepost(name,request):
@@ -113,8 +97,8 @@ def makepost(name,request):
     content = request.args.get("post")
     if title == None or content == None:
         return "do not make an empty post"
-    posts = getData("json/posts.json")
-    users = getData("json/users.json")
+    posts = get_json_data("json/posts.json")
+    users = get_json_data("json/users.json")
     newPostId = max(map(int, posts.keys())) + 1
     postfile = open("json/posts.json", "w")
     usersfile = open("json/users.json","w")
@@ -141,15 +125,15 @@ def makepost(name,request):
     #postsfile.close()
     #usersfile.close()
 
-def makecomment(name,request):
+def makecomment(name, request):
     content = request.args.get("content")
     post = request.args.get("post")
     if content == None:
         return "do not make an empty comment"
-    if checkban(name):
+    if check_if_banned(name):
         return "you are banned"
-    users = getData("json/users.json")
-    posts = getData("json/posts.json")
+    users = get_json_data("json/users.json")
+    posts = get_json_data("json/posts.json")
     newCommentId = len(posts[post]["comments"])
     postfile = open("json/posts.json", "w")
     posts[post]["comments"].update(
@@ -165,7 +149,8 @@ def makecomment(name,request):
     )
     postfile.write(json.dumps(posts, indent=2))
     postfile.close()
-  
+
+
 @app.route("/")
 def main(name=None):
     global processing_time
@@ -174,7 +159,8 @@ def main(name=None):
         posts = load.read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
     user_agent = request.headers.get('User-Agent')
     #print(user_agent.split('(')[1].split(')')[0])
-    return renderindex(posts,"Home",session)
+    return render_index(posts, "Home", session)
+
 
 @app.route("/user/<name>")
 def userpage(name):
@@ -184,26 +170,28 @@ def userpage(name):
         posts = load.read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
     users = json.loads(open("json/users.json","r").read())
     try:
-        return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
+        return render_index(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",get_user_profile_picture(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
     except KeyError:
-        return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^","Hello World")
+        return render_index(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",get_user_profile_picture(name)).replace("^profile^",name).replace("^bio^","Hello World")
+
+
 @app.route("/api/<api>")
 def api(api):
     arg = request.args.get("arg")
     match api:
         case "postcountuser":
-            return str(len(getData("json/users.json")[arg]["posts"]))
+            return str(len(get_json_data("json/users.json")[arg]["posts"]))
         case "userget":
             postid = request.args.get("id")
             try:
-                return json.loads(loadjson())[getData("json/users.json")[arg]["posts"][postid]["id"]]
+                return json.loads(get_post_json())[get_json_data("json/users.json")[arg]["posts"][postid]["id"]]
             except KeyError:
                 return "null"
 
         case "getprofile":
-            return getuserprofile(arg)
+            return get_user_profile_picture(arg)
         case "postget":
-            post = json.loads(loadjson()).get(arg, "nill")
+            post = json.loads(get_post_json()).get(arg, "nill")
             if post == "nill":
                 return "nill"
             #print('{"author":"'+post["author"]+'", "content":"'+post["content"]+'","title":"'+post["title"]+'"}')
@@ -212,7 +200,7 @@ def api(api):
             except KeyError:
                 return {"author":post["author"],"content":post["content"],"title":post["title"]}
         case "postcount":
-            return str(len(json.loads(loadjson())))
+            return str(len(json.loads(get_post_json())))
             
         case "makepost":
             userread = json.loads(open("json/users.json", "r").read())
@@ -222,7 +210,7 @@ def api(api):
                 return "provide a name or password when making an api post"
             else:
                 try:
-                    if checkban(name):
+                    if check_if_banned(name):
                         return "you are banned"
                 except KeyError:
                     return "provide an EXISTING name please"
@@ -235,10 +223,10 @@ def api(api):
         case "sendpost":
             sessname = session.get("name")
             if sessname:
-                if checkban(sessname):
+                if check_if_banned(sessname):
                     return "you are banned"
             else:
-                return renderindex("not logged in","Post",session)
+                return render_index("not logged in","Post",session)
             
             title = request.args.get("title")
             content = request.args.get("post")
@@ -264,18 +252,18 @@ def api(api):
 @app.route("/comments/<post>")
 def commentdisplay(post):
     posts = open("templates/genposts.html", "r").read().replace("^api^",f"comget?arg={post}&id=").replace("^counter^","/api/comcount?arg="+post).replace("mode = 0","mode = 1")
-    return renderindex(posts,"Home",session)
+    return render_index(posts,"Home",session)
 
 @app.route("/images/<path:filename>")
 def images(filename):
 
     if filename == "bark-it.png":
-        chance = randrange(1, 1000)
+        chance = random.randrange(1, 1000)
         print(chance)
         if chance == 69:
             return send_from_directory("images", "meow-it.png", as_attachment=True)
     if filename == "bark-it-small.png":
-        chance = randrange(1, 1000)
+        chance = random.randrange(1, 1000)
         if chance == 69:
             return send_from_directory(
                 "images", "meow-it-small.png", as_attachment=True
@@ -288,7 +276,7 @@ def images(filename):
 
 @app.route("/info")
 def info():
-    return renderindex(open("templates/about.html").read(),"About",session)
+    return render_index(open("templates/about.html").read(),"About",session)
 
 @app.route("/login/")
 def login():
@@ -300,7 +288,7 @@ def login():
         return "You must have the username and password to be able to login"
     else:
         try:
-            if checkban(name):
+            if check_if_banned(name):
                 return "you are banned"
         except KeyError:
             return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
@@ -317,7 +305,6 @@ def login():
 
 @app.route("/register/")
 def register():
-
     sessname = session.get("name", "Login")
     userread = json.loads(open("json/users.json", "r").read())
     name = request.args.get("name")
@@ -327,7 +314,7 @@ def register():
         return "You must have the username and password to be able to register"
     for item in userread:
         if name == item:
-            return renderindex("<p>Name already taken</p> ","Register",session)
+            return render_index("<p>Name already taken</p> ","Register",session)
     password = cryptocode.encrypt(password, password)
     userwrite = open("json/users.json", "w")
     
@@ -335,8 +322,8 @@ def register():
         {
             name : {
                 "password": password, 
-                "bio" : "",
-                "banned": "False",
+                "bio" : "Hi, I'm new!",
+                "banned": False,
                 "posts": {},
                 "pfp": "0.png"
                 }
@@ -353,10 +340,8 @@ def register():
 def settings():
     sessname = session.get("name", "Login")
     if sessname == "admin":
-        return renderindex(open("templates/settingsadmin.html", "r").read(),"Admin Settings",session)
-    return renderindex(open("templates/settings.html", "r").read(),"Settings",session)
-
-    
+        return render_index(open("templates/settingsadmin.html", "r").read(),"Admin Settings",session)
+    return render_index(open("templates/settings.html", "r").read(),"Settings",session)
 
 
 @app.route("/chngsetting/<setting>")
@@ -438,9 +423,9 @@ def searchpage():
                     if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
                         postslist.append(posts[str(i)])
                         postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"]) + "<br>"
-                return renderindex(postsrender,searched,session)
+                return render_index(postsrender,searched,session)
     else:
-        return renderindex(open("templates/search.html", "r").read(),"Search",session)
+        return render_index(open("templates/search.html", "r").read(),"Search",session)
 
 #@app.route("/post/<id>")
 #def postdisplay(id):
@@ -459,7 +444,7 @@ def uploadpfp():
     if session.get("name","nope") == "nope":
         return '<meta http-equiv="Refresh" content="0; url=/"/>'
     f = request.files['file']
-    userread = getData("json/users.json")
+    userread = get_json_data("json/users.json")
     
     extension = f.filename.split(".")[len(f.filename.split("."))-1]
     f.filename.split(".")[len(f.filename.split("."))-1]
@@ -486,21 +471,21 @@ def uploadpfp():
 @app.route("/channels/")
 def channels():
     channel = open("templates/genposts.html", "r").read().replace("^api^","channelget").replace("^counter^","channelcount")
-    return renderindex(channel,"Channels",session) 
+    return render_index(channel,"Channels",session) 
 
 ##@app.route("/channelget/<id>")
 ##def channelget(id):
 ##    try:
-##        return getData("json/catagories.json")[str(id)]
+##        return get_json_data("json/catagories.json")[str(id)]
 ##    except IndexError:
 ##        return "null"
 ##
 ##@app.route("/channelcount/")
 ##def channelcount():
-##    return str(len(getData("json/catagories.json")))
+##    return str(len(get_json_data("json/catagories.json")))
 
 # DSI CODE
-def DSIrenderindex(page,title,session):
+def dsi_render_index(page,title,session):
     index = open("templates/dsi/index.html","r").read()
     users = json.loads(open("json/users.json","r").read())
     try:
@@ -515,12 +500,12 @@ def DSIhome():
     posts = open("templates/dsi/dsiposts.html", "r").read()
     end = time()
     processing_time = end - start
-    return DSIrenderindex(posts,"Home",session)           
+    return dsi_render_index(posts,"Home",session)           
 @app.route("/ds/<page>")
 def DSIpage(page):
     match page:
         case "post":
-            return DSIrenderindex("""<div><center><form action="/sendpost"><label for="id1">Title </label>
+            return dsi_render_index("""<div><center><form action="/sendpost"><label for="id1">Title </label>
                                             <br>
                                             <input class=input type="text" id="id1" name="title" required>
                                             <br>
@@ -539,7 +524,7 @@ def DSIpage(page):
                                     ,"post",session)
     
         case "login":
-            return DSIrenderindex("""
+            return dsi_render_index("""
                                     <div>
                                         <form action="/login">
                                             <label for="id1">Username </label>
@@ -557,14 +542,14 @@ def DSIpage(page):
         case "browse":
             id = request.args.get("postid")
             posts = open("templates/dsi/dsipostbrowse.html", "r").read()
-            postjson = json.loads(loadjson()).get(id, "nill")
+            postjson = json.loads(get_post_json()).get(id, "nill")
             if id == None:
-                return f'<meta http-equiv="Refresh" content="0; url=/ds/browse?postid={str(len(json.loads(loadjson()))-1)}"/>'
-            return DSIrenderindex(posts.replace("^user^",postjson["author"]).replace("^title^",postjson["title"]).replace("^content^",postjson["content"]).replace("^right^",str(int(id)-1)).replace("^left^",str(int(id)+1)),"Browser",session)
+                return f'<meta http-equiv="Refresh" content="0; url=/ds/browse?postid={str(len(json.loads(get_post_json()))-1)}"/>'
+            return dsi_render_index(posts.replace("^user^",postjson["author"]).replace("^title^",postjson["title"]).replace("^content^",postjson["content"]).replace("^right^",str(int(id)-1)).replace("^left^",str(int(id)+1)),"Browser",session)
     
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 80)
+    app.run("localhost", 19142)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
