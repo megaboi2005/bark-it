@@ -1,79 +1,74 @@
 <div class=posts style="height: 95%; overflow: auto;" id=posts>
-  <div id="wrapper" style="height: 100%; overflow: auto;">
-    <div id="content"> </div>
+    <div id="wrapper" style="height: 100%; overflow: auto;">
+      <div id="content"> </div>
+    </div>
   </div>
-</div>
-<script type="text/javascript">
-const mode = 0
-var wrapper, content, test;
-var nullcheck = false
-var postvar
-const modes = [
-  `<center><div class=post><a href=/user/{{user}}><img style="width:5%;height:5%;" class=logo src="{{pfp}}"></a><p>Posted by {{user}} at <br>{{time}}</p><br><textarea class=name rows="2"   readonly>{{title}}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><a href=/comments/{{PostID}}><img src="/images/list.png" style="width:5%; float:right;"></a><img src="/images/reply.png" style="width:5%; float:left;" onclick="reply({{PostID}})"><br><br><br><br></center></div>`,
-  `<center><div class=post><a href=/user/{{user}}><img style="width:5%;height:5%;" class=logo src="{{pfp}}"></a><p>Posted by {{user}}</p><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><button>Reply (doesn't work yet)</button></br></div></center>`
-]
-function getcount() {
-  let xmlHttpReq = new XMLHttpRequest();
-  xmlHttpReq.open("GET", "^counter^", false);
-  xmlHttpReq.send(null);
-  postvar = Number(xmlHttpReq.responseText) - 1
-  console.log(postvar)
-  
-}
-function loadposts(count) {
-  for (let i=0; i<count; i++){
-        
-          if (nullcheck == true) {
-            break
-          }
-          let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/api/^api^"+postvar, false); 
-          xmlHttpReq.send(null);
-        if (xmlHttpReq.responseText !== "null") {
-          console.log(nullcheck)
-          var postarray = JSON.parse(xmlHttpReq.responseText)
-          xmlHttpReq.open("GET", "/api/getprofile?arg="+postarray["author"], false); 
-          xmlHttpReq.send(null);
-          var d = new Date(postarray["time"]*1000);
-          content.innerHTML += modes[mode].replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]).replace("{{pfp}}",xmlHttpReq.responseText).replaceAll("{{PostID}}",postvar).replaceAll("{{time}}",d.toUTCString());
-          postvar-=1
-        } else {
-          nullcheck = true
-        }
-      }
-}
-document.addEventListener("DOMContentLoaded", function() {
-  getcount();
-  loadposts(4)
-});
+  <script type="text/javascript">
+  const mode = 0
+  var wrapper, content, test;
+  var nullcheck = false
+  var postvar
+  const modes = [
+    `<center><div class=post><a href=/user/{{user}}><img style="width:5%;height:5%;" class=logo src="{{pfp}}"></a><p>Posted by {{user}} at <br>{{time}}</p><br><textarea class=name rows="2"   readonly>{{title}}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><a href=/comments/{{PostID}}><img src="/images/list.png" style="width:5%; float:right;"></a><img src="/images/reply.png" style="width:5%; float:left;" onclick="reply({{PostID}})"><br><br><br><br></center></div>`,
+    `<center><div class=post><a href=/user/{{user}}><img style="width:5%;height:5%;" class=logo src="{{pfp}}"></a><p>Posted by {{user}}</p><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><button>Reply (doesn't work yet)</button></br></div></center>`
+  ]
 
-function scroller() {
+  function getcount() {
+    let xmlHttpReq = new XMLHttpRequest();
+    xmlHttpReq.open("GET", "^counter^", false);
+    xmlHttpReq.send(null);
+    postvar = Number(xmlHttpReq.responseText) - 1
     console.log(postvar)
-    if (nullcheck == false) {
-
-    if (wrapper.scrollTop + wrapper.offsetHeight + 10 > content.offsetHeight) {
-      loadposts(3)
-
-    } 
-
+    
   }
 
+  function loadposts(count) {
+    for (let i=0; i<count; i++) {
+      if (nullcheck == true) {
+        break
+      }
 
+      let xmlHttpReq = new XMLHttpRequest();
+      xmlHttpReq.open("GET", "/api/^api^"+postvar, false); 
+      xmlHttpReq.send(null);
 
+      if (xmlHttpReq.responseText !== "null") {
+        console.log(nullcheck)
+        var postarray = JSON.parse(xmlHttpReq.responseText)
+        xmlHttpReq.open("GET", "/api/getprofile?arg="+postarray["author"], false); 
+        xmlHttpReq.send(null);
+        var d = new Date(postarray["time"]*1000);
+        content.innerHTML += modes[mode].replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]).replace("{{pfp}}",xmlHttpReq.responseText).replaceAll("{{PostID}}",postvar).replaceAll("{{time}}",d.toUTCString());
+        postvar-=1
+      } else {
+        nullcheck = true
+      }
+    }
+  }
+  document.addEventListener(
+    "DOMContentLoaded", function() {
+      getcount();
+      loadposts(4)
+    }
+  );
+
+  function scroller() {
+    console.log(postvar)
     
+    if (nullcheck == false) {
+      if (wrapper.scrollTop + wrapper.offsetHeight + 10 > content.offsetHeight) {
+        loadposts(3)
+      }
+    }
+  }
 
-}
+  wrapper = document.getElementById("wrapper");
+  content = document.getElementById("content");
+  test = document.getElementById("test");
+  content.innerHTML = "";
 
-wrapper = document.getElementById("wrapper");
-content = document.getElementById("content");
-test = document.getElementById("test");
-
-content.innerHTML = "";
-
-
-if (wrapper.addEventListener)
-  wrapper.addEventListener("scroll", scroller, false);
-
-else if (wrapper.attachEvent)
-  wrapper.attachEvent("onscroll", scroller);
-</script>
+  if (wrapper.addEventListener)
+    wrapper.addEventListener("scroll", scroller, false);
+  else if (wrapper.attachEvent)
+    wrapper.attachEvent("onscroll", scroller);
+  </script>
