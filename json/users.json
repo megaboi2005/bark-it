@@ -1,7 +1,7 @@
 {
   "mega32": {
     "password": "Zg==*NZE2gerffHQXy7aSdQAmrg==*4Cby87jhuXaVlBt46ImewQ==*qz3qwATHPyEgt2DsY8RY2g==",
-    "banned": "False",
+    "banned": false,
     "posts": {
       "0": {
         "id": "1"
@@ -11,7 +11,7 @@
   },
   "mega322": {
     "password": "TA==*N2qKKkZlsFQGj3hbptstew==*AMmR4CveHWjvij7LqMfyKA==*eeZ0eRtVXZqBeR8+WOjQxg==",
-    "banned": "False",
+    "banned": false,
     "posts": {}
   }
 }
