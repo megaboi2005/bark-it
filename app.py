@@ -1,5 +1,5 @@
 """
-    Bark-It sourc code, IDK change this to what you like.
+    Bark-It source code, IDK change this to what you like.
 """
 
 # Imports
