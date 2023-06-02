@@ -66,7 +66,7 @@ def render_index(page: str, title: str, session) -> str:
     with open("json/users.json", "r") as file:
         users = json.load(file)
 
-    profile_picture = "/imagedatabase/" + users[session["name"]]["pfp"]
+    profile_picture = "/imagedatabase/" + users[session["name"]]["pfp"] if session["name"] in users else "/imagedatabase/0.png"
 
     with open("templates/index.html","r") as file:
         index = file.read()
