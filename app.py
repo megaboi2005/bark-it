@@ -1,5 +1,4 @@
 import json
-from time import time
 import cryptocode
 from flask import (
     Flask,
@@ -41,39 +40,6 @@ def filter(var):
         .strip()
     )
 
-
-def genposts(page):
-    output = ""
-    posts = loadjson()
-    for a in range(3):
-        pcount = len(posts) - a - int(page)
-        if posts.get(f"{pcount}") == None:
-            continue
-        output += (
-            post.replace(
-                "^user^", str(posts[f"{pcount}"].get("author", "Unknown User"))
-            )
-            .replace("^title^", str(posts[f"{pcount}"].get("title", "Unknown Title")))
-            .replace(
-                "^content^", str(posts[f"{pcount}"].get("content", ""))
-            )
-            .replace("{PostID}", str(pcount))
-        )
-
-    return output
-
-
-def genpost(id):
-    postload = json.loads(open("json/posts.json", "r").read()).get(id, {})
-    return (
-        post.replace("^user^", postload.get("author", "Unknown User"))
-        .replace("^title^", postload.get("title", "Unknown Title"))
-        .replace("^content^", postload.get("content", ""))
-        .replace("^right^", f"/posts/{id-1}")
-        .replace("^left^", f"/posts/{id-1}")
-    )
-
-
 def getData(file):
     """Gets the json data from {file}"""
     return json.loads(open(file, "r").read())
@@ -81,17 +47,14 @@ def getData(file):
 
 def checkban(user):
     userread = json.loads(open("json/users.json", "r").read())
-    if userread[user].get("banned") == "True":
-        return True
-    else:
-        return False
+    if not userread[user]:
+        return 0
+    return userread[user]["banned"]
 
 def renderindex(page,title,session):
     with open("templates/index.html","r") as index:
         users = json.loads(open("json/users.json","r").read())
-        
         try:
-            #extension = users[session["name"]]["pfp"].split(".")[len(users[session["name"]]["pfp"].split("."))-1]
             userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
         except:
             userpfp = "/images/bark-it-small.png"
@@ -138,8 +101,6 @@ def makepost(name,request):
     postfile.write(json.dumps(posts, indent=2))
     usersfile.write(json.dumps(users,indent=2))
     print(f"Name: {name}, Title: '{title}'\nContent: {content}")
-    #postsfile.close()
-    #usersfile.close()
 
 def makecomment(name,request):
     content = request.args.get("content")
@@ -173,7 +134,6 @@ def main(name=None):
     with open("templates/genposts.html", "r") as load:
         posts = load.read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
     user_agent = request.headers.get('User-Agent')
-    #print(user_agent.split('(')[1].split(')')[0])
     return renderindex(posts,"Home",session)
 
 @app.route("/user/<name>")
@@ -206,7 +166,6 @@ def api(api):
             post = json.loads(loadjson()).get(arg, "nill")
             if post == "nill":
                 return "nill"
-            #print('{"author":"'+post["author"]+'", "content":"'+post["content"]+'","title":"'+post["title"]+'"}')
             try: 
                 return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"]}
             except KeyError:
@@ -305,8 +264,6 @@ def login():
         except KeyError:
             return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
         decrypt = cryptocode.decrypt(userread[name]["password"], password)
-        # if decrypt == False:
-        # return  open("templates/index.html","r").read().replace("^profile^",sessname).replace("^posts^","<center><p>incorrect username or password</p></center> "+form)
         if decrypt == password:
             session["name"] = name
         else:
@@ -336,9 +293,9 @@ def register():
             name : {
                 "password": password, 
                 "bio" : "",
-                "banned": "False",
+                "banned": 0,
                 "posts": {},
-                "pfp": "0.png"
+                "pfp": "0"
                 }
             
         }
@@ -354,7 +311,11 @@ def settings():
     sessname = session.get("name", "Login")
     if sessname == "admin":
         return renderindex(open("templates/settingsadmin.html", "r").read(),"Admin Settings",session)
-    return renderindex(open("templates/settings.html", "r").read(),"Settings",session)
+    if not sessname == "Login":
+        return renderindex(open("templates/settings.html", "r").read().replace("^profile^",getuserprofile(sessname)),"Settings",session)
+    else:
+        return '<meta http-equiv="Refresh" content="0; url=/" />'
+        
 
     
 
@@ -396,7 +357,7 @@ def chngsettings(setting):
             user = request.args.get("user", "no user")
             userread = json.loads(open("json/users.json", "r").read())
             if userread.get(user):
-                userread[user]["banned"] = "True"
+                userread[user]["banned"] = 1
             else:
                 return "unknown user"
             usersave = open("json/users.json", "w").write(
@@ -409,11 +370,12 @@ def chngsettings(setting):
                 return "you are not an admin"
             user = request.args.get("user", "no user")
             userread = json.loads(open("json/users.json", "r").read())
-            userread[user]["banned"] = "False"
+            userread[user]["banned"] = 0
             usersave = open("json/users.json", "w").write(
                 json.dumps(userread, indent=2)
             )
             return "unbanned"
+
 @app.route("/search/")
 def searchpage():
     sessname = session.get("name", "Login")
@@ -442,10 +404,6 @@ def searchpage():
     else:
         return renderindex(open("templates/search.html", "r").read(),"Search",session)
 
-#@app.route("/post/<id>")
-#def postdisplay(id):
-
-
 @app.route("/imagedatabase/<path:filename>")
 def profiledatabase(filename):
     try:
@@ -460,24 +418,24 @@ def uploadpfp():
         return '<meta http-equiv="Refresh" content="0; url=/"/>'
     f = request.files['file']
     userread = getData("json/users.json")
-    
     extension = f.filename.split(".")[len(f.filename.split("."))-1]
     f.filename.split(".")[len(f.filename.split("."))-1]
     if not extension in supported_extensions:
         return "extension isn't supported!"
     if  userread[session["name"]]["pfp"] == "0":
         userwrite = open("json/users.json","w")
-        f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
-        userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1) + "."+extension
+        f.save(os.path.join("imagedatabase", session["name"]+"."+extension))
+        userread[session["name"]]["pfp"] = session["name"]+"."+extension
         userwrite.write(json.dumps(userread,indent=2))
-    else:
-        if not userread[session["name"]]["pfp"].split(".")[len(userread[session["name"]]["pfp"].split("."))-1] == extension:
-            userwrite = open("json/users.json","w")
-            f.save(os.path.join("imagedatabase", str(len(os.listdir("imagedatabase")))+"."+extension))
-            userread[session["name"]]["pfp"] = str(len(os.listdir("imagedatabase"))-1) + "."+extension
-            userwrite.write(json.dumps(userread,indent=2))
-            return '<meta http-equiv="Refresh" content="0; url=/"/>'
-        f.save(os.path.join("imagedatabase", userread[session["name"]]["pfp"]))
+        return '<meta http-equiv="Refresh" content="0; url=/"/>'
+    userwrite = open("json/users.json","w")
+    try:
+        os.remove("imagedatabase/"+userread[session["name"]]["pfp"])
+    except:
+        pass
+    f.save(os.path.join("imagedatabase", session["name"]+"."+extension))
+    userread[session["name"]]["pfp"] = session["name"]+"."+extension
+    userwrite.write(json.dumps(userread,indent=2))
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
@@ -487,17 +445,6 @@ def uploadpfp():
 def channels():
     channel = open("templates/genposts.html", "r").read().replace("^api^","channelget").replace("^counter^","channelcount")
     return renderindex(channel,"Channels",session) 
-
-##@app.route("/channelget/<id>")
-##def channelget(id):
-##    try:
-##        return getData("json/catagories.json")[str(id)]
-##    except IndexError:
-##        return "null"
-##
-##@app.route("/channelcount/")
-##def channelcount():
-##    return str(len(getData("json/catagories.json")))
 
 # DSI CODE
 def DSIrenderindex(page,title,session):
@@ -565,6 +512,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 80)
+    app.run("0.0.0.0", 8080)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000

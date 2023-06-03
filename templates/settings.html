@@ -1,5 +1,16 @@
+
 <div class=posts id=posts>
 	<center>
+	<h4>Change Profile Picture</h4>
+	<form action = "/uploadprofile" method = "post" enctype="multipart/form-data">
+		<label for="files">
+			<img accept="image/*" id="filesdisplay" src="^profile^" class=logo style="width: 10%;" alt="Change">
+		</label>
+		<br>
+		<input style="visibility:hidden;" id=files type="file" name="file"><br>
+		<input type = "submit" value="Upload">
+	</form>  
+	<br>
 	<h4>Change password</h4>
 	<form action="/chngsetting/changepass">
 		<label>Old Password</label>
@@ -23,10 +34,20 @@
 		<input class=styledbutton type="submit" value="Save">
 	</form>
 	<br>
-    <form action = "/uploadprofile" method = "post" enctype="multipart/form-data">  
-        <input type="file" name="file" />  
-        <input type = "submit" value="Upload">  
-    </form>  
-	<br>
+
 	</center>
 </div>
+
+<script>
+	const input = document.getElementById('files');
+	const preview = document.getElementById('filesdisplay');
+	input.addEventListener('change', function() {
+	  if (input.files && input.files[0]) {
+		const reader = new FileReader();
+		reader.onload = function(e) {
+		  preview.src = e.target.result;
+		};
+		reader.readAsDataURL(input.files[0]);
+	  }
+	});
+	</script>

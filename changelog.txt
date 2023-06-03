@@ -5,3 +5,12 @@
 0.03 - multiple format support for profile pictures
 	*0.03_1 - quick fix with registering causing the user to redirect to an errored login page.
 	*0.03_2 - sad bug where bark-it would error when you uploaded a profile  picture with the same extension.
+0.04 - tos added
+
+0.05 - readded spaces to usernames, made the profile picture take you to your profile, and logo take you to main page, added timeposted to every post.
+
+0.06 - bios
+	*0.06_1 FIX TO TIME
+
+0.07 - change the backend handling of profile pictures to be more consistent, uploading profile pictures is way better now.
+deleted much of the useless old functions
