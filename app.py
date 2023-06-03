@@ -52,14 +52,18 @@ def checkban(user):
     return userread[user]["banned"]
 
 def renderindex(page,title,session):
-    with open("templates/index.html","r") as index:
-        users = json.loads(open("json/users.json","r").read())
+    users = json.loads(open("json/users.json","r").read())
+    theme = users[session["name"]].get("theme","normal.html")
+    version = "Alpha 0.08"
+    if not os.path.isfile("templates/themes/"+theme):
+        theme = "normal.html"
+    with open("templates/themes/"+theme,"r") as index:
         try:
             userpfp = "/imagedatabase/"+users[session["name"]]["pfp"]
         except:
             userpfp = "/images/bark-it-small.png"
         user = session.get("name", "Login")
-        return index.read().replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp)
+        return index.read().replace("^posts^",page).replace("^profile^",user).replace("^title^","Bark-IT - "+title).replace("^pfp^",userpfp).replace("^version^",version)
 
 
 def getuserprofile(user):
@@ -294,6 +298,7 @@ def register():
                 "password": password, 
                 "bio" : "",
                 "banned": 0,
+                "theme": "normal.html",
                 "posts": {},
                 "pfp": "0"
                 }
@@ -348,6 +353,15 @@ def chngsettings(setting):
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             users = json.loads(open("json/users.json","r").read())
             users[sessname]["bio"] = bio
+            with open("json/users.json","w") as userwrite:
+                userwrite.write(json.dumps(users,indent=2))
+                return '<meta http-equiv="Refresh" content="0; url=/" />'
+        case "changetheme":
+            theme = request.args.get("theme")
+            if theme == "":
+                return '<meta http-equiv="Refresh" content="0; url=/" />'
+            users = json.loads(open("json/users.json","r").read())
+            users[sessname]["theme"] = theme
             with open("json/users.json","w") as userwrite:
                 userwrite.write(json.dumps(users,indent=2))
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
@@ -421,6 +435,8 @@ def uploadpfp():
     extension = f.filename.split(".")[len(f.filename.split("."))-1]
     f.filename.split(".")[len(f.filename.split("."))-1]
     if not extension in supported_extensions:
+        if len(f.filename) == 0:
+             return '<meta http-equiv="Refresh" content="0; url=/settings"/>'
         return "extension isn't supported!"
     if  userread[session["name"]]["pfp"] == "0":
         userwrite = open("json/users.json","w")

@@ -14,3 +14,5 @@
 
 0.07 - change the backend handling of profile pictures to be more consistent, uploading profile pictures is way better now.
 deleted much of the useless old functions
+
+0.08 - themes

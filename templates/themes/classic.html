@@ -1,0 +1,393 @@
+<style>
+	body {
+	  background-image: linear-gradient(to left, black , dimgrey);
+	  resize: vertical;
+	  overflow: auto;
+	  width: 90%;
+	  color: white;
+	
+	}
+	.topbar {
+		position: sticky;
+		border-radius: 10px;
+		top: 0px;
+		background-color: #808080;
+		height: 80%;
+		width: 100px;
+	
+		
+	}
+	.navbar{
+	
+		border-radius: 10px;
+		top: 0%;
+		background-color: #6B6B6B;
+		width: 30%;
+		height: 80%;
+	
+	}
+	.post {
+		
+		left: 100%;
+		border-radius: 10px;
+		top: 100%;
+		background-color: #6B6B6B;
+		width: 69%;
+		height: 70%;
+		border-style: solid;
+		border-color: #6b6b6b;
+		border-width: 20px;
+		margin: 20px; 
+		
+		overflow: hidden;
+		  
+	}
+	.page {
+		border-radius: 10px;
+	  background:#2e2d2d;
+	  position: fixed;
+	  height: 100%; 
+	  width: 95%; 
+	  display: flex;
+	  margin-right:auto; 
+	  margin-top:0%;
+	  overflow: auto;
+	
+	}
+	.comment {
+		border-radius: 10px;
+		top: 100%;
+		background-color: #6B6B6B;
+		width: 400px;
+		height: 50%;
+		border-style: solid;
+		border-color: #6b6b6b;
+		border-width: 40px;
+		margin: 5px; 
+		resize: vertical;
+		overflow-x: auto;
+	}
+	.name {
+		background-color: dimgrey;
+		height: auto;
+		border-radius: 10px;
+		border-color: #6B6B6B;
+		color: white;
+		width: 100%;
+		color: #b3b3b3;
+		
+		
+	}
+	.textpost {
+		background-color: dimgrey;
+		resize: none;
+		border-radius: 10px;
+		border-color: #6B6B6B;
+		color: white;
+		width: 100%;
+		color: #FFFFFF;
+		overflow: auto;
+		height: 50%;
+	}
+	
+	h1 {
+		color: #b3b3b3;
+	}
+	
+	p {
+		color: #b3b3b3;
+	}
+	input[type="text"]
+	{
+		height:20px
+	}
+	a {
+	  color: white;
+	}
+	button{
+		color: white;
+		background-color: darkgray;
+		border-radius: 10px;
+		width: 100px;
+		height: 50px;
+		right: 0%;
+	}
+	code{
+		color: #b3b3b3;
+		border-radius: 5px;
+		background-color: black;
+	}
+	
+	@media only screen and (device-width: 1280px),
+	only screen and (max-width:1280px) {
+	.post {
+		font-size: 20px;
+		
+		border-radius: 10px;
+		
+	
+		background-color: #6B6B6B;
+		width: 60%;
+		height: 400px;
+		border-style: solid;
+		border-color: #6b6b6b;
+		border-width: 20px;
+		margin: 20px; 
+		
+		overflow: hidden;
+	
+	
+	}
+	/* width */
+	::-webkit-scrollbar {
+	  width: 10px;
+	}
+	
+	/* Track */
+	::-webkit-scrollbar-track {
+	  background: #f1f1f1; 
+	}
+	 
+	/* Handle */
+	::-webkit-scrollbar-thumb {
+	  background: #888; 
+	}
+	
+	/* Handle on hover */
+	::-webkit-scrollbar-thumb:hover {
+	  background: #555; 
+	}
+}
+</style>
+<script type="text/javascript">
+	var toggle_sidebar = true
+	var replyid = 0
+	function onsidebarclick() {
+		const sidebar2 = document.getElementById("sidebar2")
+		const sidebar = document.getElementById("sidebar")
+		const sidearea = document.getElementById("sidearea")
+		const toggle_botton = document.getElementById("toggle_button")
+		const posts = document.getElementById("posts")
+		if (toggle_sidebar) {
+			sidebar2.style.display = "none"
+			sidearea.style.width = "12.5%"
+			sidebar.style.width = "95%"
+			//toggle_button.style.height = "35px"
+			toggle_button.src = "/images/arrow.png"
+			try {
+				posts.style.width = "82%"
+				posts.style.left = "15%"
+			} catch {}
+
+			toggle_sidebar = false
+		} else {
+			sidebar2.style.display = "block"
+			sidearea.style.width = "20%"
+			sidebar.style.width = "50%"
+			//toggle_button.style.height = "57px"
+			toggle_button.src = "/images/arrow-back.png"
+			try {
+				posts.style.width = "75%"
+				posts.style.left = "22%"
+			} catch {}
+			toggle_sidebar = true
+		}
+		
+	}
+
+	var toggle_floating_window = 1
+	function toggle_window(window) {
+		const postbox = document.getElementById("postbox")
+		const loginbox = document.getElementById("loginbox")
+		const registerbox = document.getElementById("registerbox")
+		const searchbox = document.getElementById("searchbox")
+		const replybox = document.getElementById("replybox")
+		toggle_floating_window = window
+		console.log(toggle_floating_window)
+		postbox.style.display = "none"
+		loginbox.style.display = "none"
+		registerbox.style.display = "none"
+		searchbox.style.display = "none"
+		replybox.style.display = "none"
+		switch(toggle_floating_window) {
+			case 1:
+				postbox.style.display = "block"
+				break
+			case 2:
+				loginbox.style.display = "block"
+				break
+			case 3:
+				registerbox.style.display = "block"
+				break
+			case 4:
+				searchbox.style.display = "block"
+				break
+			case 5: 
+				replybox.style.display = "block"
+				break
+		}		
+	}
+
+	function save() {
+		const postbox = document.getElementById("postbox")
+		const postload = document.getElementById("postload")
+		
+		localStorage.setItem("title", postload.elements[0].value);
+		localStorage.setItem("content", postload.elements[1].value);
+		toggle_window(0)
+	}
+	function load() {
+		const postload = document.getElementById("postload")
+		if (localStorage.getItem("title") != null) {
+			postload.elements[0].value = localStorage.getItem("title")
+			postload.elements[1].value = localStorage.getItem("content")
+		}
+
+		toggle_window(1)		
+	}
+
+	function reply(postid) {
+		replyid = postid
+		toggle_window(5)
+	}
+	function replychange() {
+		console.log("test")
+		var text = document.getElementById("replytext").value;
+		var form = this
+		form.action = "/api/sendcomment?post="+replyid+"&content="+text
+		console.log(form.action);
+  		event.preventDefault();
+		window.location.replace(form.action);
+	}
+
+</script>
+	<div class=page>
+	<body>
+	
+	<head>
+	<link rel="shortcut icon" href="images/logo.png">
+	<title>Bark-it - public board</title>
+	</head>
+	<div class=topbar>
+		
+		<center>
+		
+		<img src="/images/bark-it.png" width=110%>
+		<h2><button onclick=toggle_window(2)>^profile^</button></h2>
+		<h2><a href="/"><button>Home</button></h2></a>
+		<h2><button onclick="toggle_window(1)">Post</button></h2>
+		<h2><a href="/info"><button>Guidelines</button></h2></a>
+		<h2><a href="/settings"><button>Settings</button></h2></a>
+		<h2>^version^</h2>
+		</center>
+		<center>
+	
+		</center>
+	</body>
+	</div>
+	<br>
+	^posts^
+	<center>
+	<div class="postbox" style="display: none; width: 50%;" id="postbox">
+		<div class=post>
+			<img src="/images/bark-it-x.png" onclick="save()" class="logo" style="width:35px;float:right;">
+			<br>
+			<br>
+			<p>Post</p>
+			<form action="/api/sendpost" id="postload">
+				<label for="id1">Title </label>
+				<br>
+				<input class=input type="text" id="id1" name="title" required id="titlefield">
+				<br>
+				<label for="id2">Content  </label>
+				<br>
+				<textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="id2" name="post" required id="contentfield"></textarea>
+				<br>
+				<label for="id3">Channels (commas to seperate)</label>
+				<input class=input type="text" id=id3 name="tags" required>
+				<br>
+				<input class=styledbutton style="width: 30%; height: 50%;" type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="loginbox">
+		<div class="post">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Login</p>
+			<form action="/login">
+				<label for="id1">Username </label>
+				<input class=input type="text" id="id1" name="name">
+				<br>
+				<label for="id2">Password  </label>
+				<input class=input type="password" id="id2" name="pass">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="registerbox">
+		<div class="post">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Register</p>
+			<form action="/register">
+				<label for="id1">Username </label>
+				<input class=input type="text" id="id1" name="name">
+				<br>
+				<label for="id2">Password  </label>
+				<input class=input type="password" id="id2" name="pass">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	<div class="postbox" style="display: none;" id="searchbox">
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<br>
+		<div class="post" style="right:75%;">
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:10%;float:right;">
+			<br>
+			<br>
+			<p>Search</p>
+			<form action="/search">
+				<label for="id">Type: </label>
+				
+				<select name="object" id="Channel">
+					<option>posts</option>
+					<option>channel</option>
+				</select>
+				<br>
+				<label for="id">Search:  </label>
+				<input type="text" id="Search" name="search">
+				<br>
+				<input type="submit" value="Submit">
+			</form>
+		</div>
+	</div>
+	
+	<div class="postbox" style="display: none; width: 50%;" id="replybox">
+		<div class=post>
+			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:35px;float:right;">
+			<br>
+			<br>
+			<p>Reply</p>
+			<form onsubmit="replychange()" id="postload">
+				<label for="id2">Content  </label>
+				<br>
+				<textarea class=input style="resize: vertical;" rows=10 maxlength="6000" id="replytext" name="content" required id="contentfield"></textarea>
+				<br>
+				<button type="submit" id="submitButton">Submit</button>
+			</form>
+		</div>
+	</div>
+</center>
