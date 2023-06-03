@@ -52,10 +52,13 @@ def checkban(user):
     return userread[user]["banned"]
 
 def renderindex(page,title,session):
-    users = json.loads(open("json/users.json","r").read())
-    theme = users[session["name"]].get("theme","normal.html")
-    version = "Alpha 0.08"
-    if not os.path.isfile("templates/themes/"+theme):
+    version = "Alpha 0.08_1"
+    try:
+        users = json.loads(open("json/users.json","r").read())
+        theme = users[session["name"]].get("theme","normal.html")
+        if not os.path.isfile("templates/themes/"+theme):
+            theme = "normal.html"
+    except KeyError:
         theme = "normal.html"
     with open("templates/themes/"+theme,"r") as index:
         try:

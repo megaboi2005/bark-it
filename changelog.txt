@@ -16,3 +16,4 @@
 deleted much of the useless old functions
 
 0.08 - themes
+	*0.08_1 bugfix with logged out users
