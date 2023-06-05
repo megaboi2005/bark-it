@@ -26,13 +26,13 @@
 		height: 80%;
 	
 	}
-	.post {
+	/*.post {
 		
 		left: 100%;
 		border-radius: 10px;
 		top: 100%;
 		background-color: #6B6B6B;
-		width: 69%;
+		width: 100%;
 		height: 70%;
 		border-style: solid;
 		border-color: #6b6b6b;
@@ -41,6 +41,28 @@
 		
 		overflow: hidden;
 		  
+	} */
+	.post {
+		filter: brightness(75%);
+		background-color: #6B6B6B;
+		transition: 100ms;
+		margin-bottom: 10px;
+		border: solid;
+		border-color: #6b6b6b;
+		border-width: 20px;
+		border-radius: 10px;
+		font-family: monospace;
+		width: 75%;
+		position: relative;
+	}
+	.posts {
+		transition: 100ms;
+		left: 22%;
+		width: 75%;
+		position: absolute;
+		border-width: 2px;
+		background:#2e2d2d;
+		
 	}
 	.page {
 		border-radius: 10px;
@@ -272,7 +294,7 @@
 		
 		<center>
 		
-		<img src="/images/bark-it.png" width=110%>
+		<img src="/images/bark-it-classic.png" width=100%>
 		<h2><button onclick=toggle_window(2)>^profile^</button></h2>
 		<h2><a href="/"><button>Home</button></h2></a>
 		<h2><button onclick="toggle_window(1)">Post</button></h2>
@@ -284,9 +306,12 @@
 	
 		</center>
 	</body>
+	
 	</div>
 	<br>
+	
 	^posts^
+
 	<center>
 	<div class="postbox" style="display: none; width: 50%;" id="postbox">
 		<div class=post>

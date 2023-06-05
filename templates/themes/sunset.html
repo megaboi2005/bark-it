@@ -9,17 +9,21 @@
 <style type="text/css">
 
 	body {
-		background-color: #000000;
+		background: linear-gradient(to bottom, #A75D5D 0%, #FFC3A1 100%);
+		height: 100%;
+		margin: 0;
+    	background-repeat: no-repeat;
+    	background-attachment: fixed;
 		color: white;
 		font-family: Bark;
 	}
 	.styledbutton {
 		filter: brightness(75%);
-		background-color: #282929;
+		background-color: #D3756B;
 		transition: 100ms;
 		border-style: solid;
 		border-radius: 3px;
-		border-color: #282929;
+		border-color: #D3756B;
 		color: white;		
 	}
 	.styledbutton:hover {
@@ -36,7 +40,7 @@
 		border-style: solid;
 		border-radius: 3px;
 		border-color: #F97B72;
-		border-bottom-color: #FCFFB2;
+		border-bottom-color: FFC3A1;
 		border-width: 2px;
 		background-color: #F97B72;
 		float: left;
@@ -49,7 +53,7 @@
 	}
 
 	.sidebar {
-		
+		filter: brightness(75%);
 		
 		width: 50%;
 		height: 88%;
@@ -57,9 +61,9 @@
 		border-style: solid;
 		border-radius: 3px;
 		border-color: #F97B72;
-		border-bottom-color: #FCFFB2;
+		border-bottom-color: FFC3A1;
 		border-width: 2px;
-		background-color: #282929;
+		background-color: #D3756B;
 		
 	}
 	.sidebar:hover {
@@ -68,22 +72,16 @@
 	}
 	.sidebar2 {
 		filter: brightness(75%);
-		
 		width: 50%;
 		height: 88%;
 		position: absolute;
 		border-style: solid;
 		border-radius: 3px;
 		border-color: #F97B72;
-		border-bottom-color: #FCFFB2;
+		border-bottom-color: FFC3A1;
 		border-width: 2px;
-		background-color: #282929;
+		background-color: #D3756B;
 		right: 0px;
-		
-	}
-	.sidebar2:hover {
-		filter: brightness(100%);
-		
 		
 	}
 
@@ -137,20 +135,20 @@
 		border-style: solid;
 		border-radius: 3px;
 		border-color: #F97B72;
-		border-bottom-color: #FCFFB2;
+		border-bottom-color: #FFC3A1;
 		border-width: 2px;
-		background-color: #000000;
+		background-color: #A75D5D;
 		
 	}
 	.post {
 		filter: brightness(75%);
-		background-color: #282929;
+		background-color: #D3756B;
 		transition: 100ms;
 		margin-bottom: 10px;
 		border: solid;
 		border-radius: 3px;
 		border-width: 2px;
-		border-color: #000000;
+		border-color: #A75D5D;
 		font-family: monospace;
 		width: 96%;
 		position: relative;
@@ -176,12 +174,12 @@
 
 	input {
 		filter: brightness(100%);
-		background-color: #282929;
+		background-color: #D3756B;
 		transition: 100ms;
 		border: solid;
 		border-radius: 5px;
 		border-width: 3px;
-		border-color: #282929;
+		border-color: #D3756B;
 		border-bottom-color: #F97B72;
 		font-family: monospace;
 		color: white;
@@ -199,7 +197,7 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #000000; 
+  background: #A75D5D; 
 }
  
 /* Handle */
@@ -213,7 +211,7 @@
 }
 	button {
 		filter: opacity(75%);
-		background-color: #282929;
+		background-color: #D3756B;
 		width: 100%;
 		height: 100px;
 		color: white;
@@ -222,7 +220,7 @@
 		transition: 100ms;
 	}
 	button:hover {
-		background-color: #282929;
+		background-color: #D3756B;
 		width: 110%;
 		height: 100px;
 		color: white;
@@ -232,7 +230,7 @@
 		transition: 100ms;
 	}
 	textarea {
-		background-color: #282929;
+		background-color: #D3756B;
 		width: 80%;
 		height: auto;
 		color: white;
@@ -347,11 +345,11 @@
 
 <body>
 	<div class=sidearea id=sidearea>
-		<div style="width: 50%; background-color: #282929; border-radius: 3px; height: 10%;">
+		<div style="width: 50%; background-color: #D3756B; border-radius: 3px; height: 10%; filter: brightness(75%);">
 			<center><a href="/"><img src="/images/bark-it.png" style=" object-fit: cover; width: 100%;"></a></center>
 			
 		</div>
-		<div onclick="onsidebarclick()" style="width: 50%; background-color: #282929; border-radius: 3px; right: 0%; color: white; height: 10%; top: 0%; position: absolute;">
+		<div onclick="onsidebarclick()" style="width: 50%; background-color: #D3756B; border-radius: 3px; right: 0%; color: white; height: 10%; top: 0%; position: absolute; filter: brightness(75%);">
 			<center>
 				<button style="height: 57px;"> 
 					<img id=toggle_button style="width: 12.5%;" src="/images/arrow-back.png">

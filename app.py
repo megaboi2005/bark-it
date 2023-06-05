@@ -52,7 +52,7 @@ def checkban(user):
     return userread[user]["banned"]
 
 def renderindex(page,title,session):
-    version = "Alpha 0.08_1"
+    version = "Alpha 0.08_2"
     try:
         users = json.loads(open("json/users.json","r").read())
         theme = users[session["name"]].get("theme","normal.html")
@@ -78,6 +78,16 @@ def getuserprofile(user):
     except KeyError:
         return "/imagedatabase/0.png"
 
+def usermod(user,item,arg):
+    users = json.loads(open("json/users.json","r").read())
+    try:
+        users[user][item] = arg
+    except KeyError:
+        return False
+    with open("json/users.json","w") as userwrite:
+        userwrite.write(json.dumps(users,indent=2))
+        return True
+
 def makepost(name,request):
     title = request.args.get("title")
     content = request.args.get("post")
@@ -97,7 +107,8 @@ def makepost(name,request):
                 "likes": 1,
                 "locked": False,
                 "comments": {},
-                "time" : time.time()
+                "time" : time.time(),
+                "attachments": {}
             }
         }
     )
@@ -154,6 +165,7 @@ def userpage(name):
         return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
     except KeyError:
         return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^","Hello World")
+
 @app.route("/api/<api>")
 def api(api):
     arg = request.args.get("arg")
@@ -174,7 +186,7 @@ def api(api):
             if post == "nill":
                 return "nill"
             try: 
-                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"]}
+                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"],"bumps":post["bumps"]}
             except KeyError:
                 return {"author":post["author"],"content":post["content"],"title":post["title"]}
         case "postcount":
@@ -251,7 +263,6 @@ def images(filename):
     except FileNotFoundError:
         abort(404)
 
-
 @app.route("/info")
 def info():
     return renderindex(open("templates/about.html").read(),"About",session)
@@ -304,7 +315,7 @@ def register():
                 "theme": "normal.html",
                 "posts": {},
                 "pfp": "0"
-                }
+            }
             
         }
     
@@ -325,12 +336,12 @@ def settings():
         return '<meta http-equiv="Refresh" content="0; url=/" />'
         
 
-    
-
-
 @app.route("/chngsetting/<setting>")
 def chngsettings(setting):
-    sessname = session.get("name", "Please log in")
+    try:
+        sessname = session["name"]
+    except:
+        return "please log in"
     match setting:
         case "changepass":
             password = request.args.get("oldpass")
@@ -338,15 +349,10 @@ def chngsettings(setting):
             newpass2 = request.args.get("newpass2")
             if not newpass == newpass2:
                 return '<meta http-equiv="Refresh" content="2; url=/settings"/><p>new passwords do not match</p>'
-            userread = json.loads(open("json/users.json", "r").read())
             if not len(newpass) >= 1:
                 return "put in a new password"
-
             if cryptocode.decrypt(userread[sessname]["password"], password) == password:
-                userread[sessname]["password"] = cryptocode.encrypt(newpass, newpass)
-                usersave = open("json/users.json", "w").write(
-                    json.dumps(userread, indent=2)
-                )
+                usermod(sessname,"password",cryptocode.encrypt(newpass, newpass))
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             else:
                 return "wrong password"
@@ -354,43 +360,26 @@ def chngsettings(setting):
             bio = request.args.get("bio")
             if bio == "":
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
-            users = json.loads(open("json/users.json","r").read())
-            users[sessname]["bio"] = bio
-            with open("json/users.json","w") as userwrite:
-                userwrite.write(json.dumps(users,indent=2))
-                return '<meta http-equiv="Refresh" content="0; url=/" />'
+            usermod(sessname,"bio",bio)
+
         case "changetheme":
             theme = request.args.get("theme")
             if theme == "":
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
-            users = json.loads(open("json/users.json","r").read())
-            users[sessname]["theme"] = theme
-            with open("json/users.json","w") as userwrite:
-                userwrite.write(json.dumps(users,indent=2))
-                return '<meta http-equiv="Refresh" content="0; url=/" />'
+            usermod(sessname,"theme",theme)
+            return '<meta http-equiv="Refresh" content="0; url=/" />'
         case "adminban":
             if not sessname == "admin":
                 return "you are not an admin"
             user = request.args.get("user", "no user")
-            userread = json.loads(open("json/users.json", "r").read())
-            if userread.get(user):
-                userread[user]["banned"] = 1
-            else:
-                return "unknown user"
-            usersave = open("json/users.json", "w").write(
-                json.dumps(userread, indent=2)
-            )
+            usermod(user,"banned",1)
             return "banned"
 
         case "adminunban":
             if not sessname == "admin":
                 return "you are not an admin"
             user = request.args.get("user", "no user")
-            userread = json.loads(open("json/users.json", "r").read())
-            userread[user]["banned"] = 0
-            usersave = open("json/users.json", "w").write(
-                json.dumps(userread, indent=2)
-            )
+            usermod(user,"banned",0)
             return "unbanned"
 
 @app.route("/search/")
@@ -442,19 +431,15 @@ def uploadpfp():
              return '<meta http-equiv="Refresh" content="0; url=/settings"/>'
         return "extension isn't supported!"
     if  userread[session["name"]]["pfp"] == "0":
-        userwrite = open("json/users.json","w")
         f.save(os.path.join("imagedatabase", session["name"]+"."+extension))
-        userread[session["name"]]["pfp"] = session["name"]+"."+extension
-        userwrite.write(json.dumps(userread,indent=2))
+        usermod(session["name"],"pfp",session["name"]+"."+extension)
         return '<meta http-equiv="Refresh" content="0; url=/"/>'
-    userwrite = open("json/users.json","w")
     try:
         os.remove("imagedatabase/"+userread[session["name"]]["pfp"])
     except:
         pass
     f.save(os.path.join("imagedatabase", session["name"]+"."+extension))
-    userread[session["name"]]["pfp"] = session["name"]+"."+extension
-    userwrite.write(json.dumps(userread,indent=2))
+    usermod(session["name"],"pfp",session["name"]+"."+extension)
     return '<meta http-equiv="Refresh" content="0; url=/"/>'
 
 
@@ -531,6 +516,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8080)
+    app.run("0.0.0.0", 80)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
