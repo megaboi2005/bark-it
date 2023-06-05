@@ -186,7 +186,7 @@ def api(api):
             if post == "nill":
                 return "nill"
             try: 
-                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"],"bumps":post["bumps"]}
+                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"]}
             except KeyError:
                 return {"author":post["author"],"content":post["content"],"title":post["title"]}
         case "postcount":
@@ -516,6 +516,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 80)
+    app.run("0.0.0.0", 8080)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000
