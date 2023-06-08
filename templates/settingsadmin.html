@@ -23,7 +23,11 @@
 	<form action="/chngsetting/adminban">
 		<label>User</label>
 		<br>
-		<input class=input type="text" name="user">
+		<input class=input type="text" name="user" required>
+		<br>
+		<label>Reason</label>
+		<br>
+		<input class=input type="text" name="reason" required>
 		<br>
 		<input class=styledbutton type="submit" name="submit">
 	</form>
@@ -32,6 +36,19 @@
 		<label>User</label>
 		<br>
 		<input class=input type="text" name="user">
+		<br>
+		<input class=styledbutton type="submit" name="submit">
+	</form>
+	<br>
+	<h4>Delete post</h4>
+	<form action="/chngsetting/admindelpost">
+		<label>id</label>
+		<br>
+		<input class=input type="text" name="id">
+		<br>
+		<label>reason</label>
+		<br>
+		<input class=input type="text" name="reason">
 		<br>
 		<input class=styledbutton type="submit" name="submit">
 	</form>

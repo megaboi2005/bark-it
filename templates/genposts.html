@@ -36,7 +36,9 @@ function loadposts(count) {
           xmlHttpReq.send(null);
           var d = new Date(postarray["time"]*1000);
           content.innerHTML += modes[mode].replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]).replace("{{pfp}}",xmlHttpReq.responseText).replaceAll("{{PostID}}",postvar).replaceAll("{{time}}",d.toDateString() + " at " + d.getHours()+":"+d.getMinutes());
+          console.log(postarray["time"]*1000)
           postvar-=1
+
         } else {
           nullcheck = true
         }

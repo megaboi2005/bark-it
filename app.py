@@ -13,7 +13,6 @@ from flask import (
 from werkzeug.datastructures import ImmutableMultiDict
 from flask import session
 from random import randrange
-from Levenshtein import distance
 from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
@@ -52,13 +51,13 @@ def checkban(user):
     return userread[user]["banned"]
 
 def renderindex(page,title,session):
-    version = "Alpha 0.08_2"
+    version = "Alpha 0.08_3"
     try:
         users = json.loads(open("json/users.json","r").read())
         theme = users[session["name"]].get("theme","normal.html")
         if not os.path.isfile("templates/themes/"+theme):
             theme = "normal.html"
-    except KeyError:
+    except:
         theme = "normal.html"
     with open("templates/themes/"+theme,"r") as index:
         try:
@@ -87,6 +86,10 @@ def usermod(user,item,arg):
     with open("json/users.json","w") as userwrite:
         userwrite.write(json.dumps(users,indent=2))
         return True
+
+def getreason(name):
+    return renderindex("<div class=posts><p> you are banned for the reason:" +json.loads(open("json/users.json","r").read())[name]["reason"] ,"Banned", {}) + "</p></div>"
+    
 
 def makepost(name,request):
     title = request.args.get("title")
@@ -126,7 +129,7 @@ def makecomment(name,request):
     if content == None:
         return "do not make an empty comment"
     if checkban(name):
-        return "you are banned"
+        return getreason(name)
     users = getData("json/users.json")
     posts = getData("json/posts.json")
     newCommentId = len(posts[post]["comments"])
@@ -201,7 +204,7 @@ def api(api):
             else:
                 try:
                     if checkban(name):
-                        return "you are banned"
+                        return getreason(name)
                 except KeyError:
                     return "provide an EXISTING name please"
                 decrypt = cryptocode.decrypt(userread[name]["password"], password)
@@ -214,7 +217,7 @@ def api(api):
             sessname = session.get("name")
             if sessname:
                 if checkban(sessname):
-                    return "you are banned"
+                    return getreason(sessname)
             else:
                 return renderindex("not logged in","Post",session)
             
@@ -278,7 +281,7 @@ def login():
     else:
         try:
             if checkban(name):
-                return "you are banned"
+                return getreason(name)
         except KeyError:
             return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
         decrypt = cryptocode.decrypt(userread[name]["password"], password)
@@ -361,7 +364,7 @@ def chngsettings(setting):
             if bio == "":
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             usermod(sessname,"bio",bio)
-
+            return '<meta http-equiv="Refresh" content="0; url=/user/'+sessname+'" />'
         case "changetheme":
             theme = request.args.get("theme")
             if theme == "":
@@ -371,8 +374,12 @@ def chngsettings(setting):
         case "adminban":
             if not sessname == "admin":
                 return "you are not an admin"
-            user = request.args.get("user", "no user")
+            user = request.args.get("user", 0)
+            reason = request.args.get("reason", 0)
+            if not user and reason:
+                return "missing parameter"
             usermod(user,"banned",1)
+            usermod(user,"reason",reason)
             return "banned"
 
         case "adminunban":
@@ -381,34 +388,47 @@ def chngsettings(setting):
             user = request.args.get("user", "no user")
             usermod(user,"banned",0)
             return "unbanned"
-
-@app.route("/search/")
-def searchpage():
-    sessname = session.get("name", "Login")
-    object = request.args.get("object")
-    searched = request.args.get("search")
-    index = open("templates/index.html", "r").read()
-    if not searched == None and not object == None:
-        match object:
-            case "channel":
-                channellist = []
-                channels = json.loads(open("json/catagories.json", "r").read())
-                for i in range(len(channels)):
-                    if distance(searched, channels[str(i)]["name"]) < 4:
-                        channellist.append(channels[str(i)]["name"])
-                return channellist
-            case "posts":
-                postslist = []
-                postsrender = ""
-                postspage = open("templates/post.html","r").read()
-                posts = json.loads(open("json/posts.json", "r").read())
-                for i in range(len(posts)):
-                    if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
-                        postslist.append(posts[str(i)])
-                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"]) + "<br>"
-                return renderindex(postsrender,searched,session)
-    else:
-        return renderindex(open("templates/search.html", "r").read(),"Search",session)
+        case "admindelpost":
+            if not sessname == "admin":
+                return "you are not an admin"
+            identifier = request.args.get("id", 0)
+            reason = request.args.get("reason", 0)
+            if identifier and reason:
+                posts = json.loads(open("json/posts.json","r").read())
+                posts[identifier]["content"] = "{{This post has been deleted for: " + reason +"}}"
+                posts[identifier]["title"] = "{{This post has been deleted for: "+ reason + "}}"
+                with open("json/posts.json", "w") as postwrite:
+                    postwrite.write(json.dumps(posts, indent=2))
+                return "deleted post"
+            else:
+                return "missing parameter"
+#@app.route("/search/")
+#def searchpage():
+#    sessname = session.get("name", "Login")
+#    object = request.args.get("object")
+#    searched = request.args.get("search")
+#    index = open("templates/index.html", "r").read()
+#    if not searched == None and not object == None:
+#        match object:
+#            case "channel":
+#                channellist = []
+#                channels = json.loads(open("json/catagories.json", "r").read())
+#                for i in range(len(channels)):
+#                    if distance(searched, channels[str(i)]["name"]) < 4:
+#                        channellist.append(channels[str(i)]["name"])
+#                return channellist
+#            case "posts":
+#                postslist = []
+#                postsrender = ""
+#                postspage = open("templates/post.html","r").read()
+#                posts = json.loads(open("json/posts.json", "r").read())
+#                for i in range(len(posts)):
+#                    if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
+#                        postslist.append(posts[str(i)])
+#                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"]) + "<br>"
+#                return renderindex(postsrender,searched,session)
+#    else:
+#        return renderindex(open("templates/search.html", "r").read(),"Search",session)
 
 @app.route("/imagedatabase/<path:filename>")
 def profiledatabase(filename):
