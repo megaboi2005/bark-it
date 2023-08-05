@@ -17,15 +17,26 @@ from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
 import time
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
 global post
+
+# I suggest commenting these out after they are done downloading
+
+nltk.download('stopwords')
+
+nltk.download('punkt')
+
+nltk.download('averaged_perceptron_tagger')
+
+
 
 post = open("templates/post.html", "r").read()
 app = Flask(__name__,static_url_path='/files',static_folder='static')
 app.secret_key = b"secretkey"
 
 
-def loadjson():
-    return open("json/posts.json", "r").read()
 
 
 def filter(var):
@@ -51,7 +62,7 @@ def checkban(user):
     return userread[user]["banned"]
 
 def renderindex(page,title,session):
-    version = "Alpha 0.08_3"
+    version = "Alpha 0.9"
     try:
         users = json.loads(open("json/users.json","r").read())
         theme = users[session["name"]].get("theme","normal.html")
@@ -96,31 +107,48 @@ def makepost(name,request):
     content = request.args.get("post")
     if title == None or content == None:
         return "do not make an empty post"
-    posts = getData("json/posts.json")
+#    posts = getData("json/posts.json")
     users = getData("json/users.json")
-    newPostId = max(map(int, posts.keys())) + 1
-    postfile = open("json/posts.json", "w")
+    newPostId = str(len(os.listdir("json/posts")))
+    post = json.loads("{}")
+    os.makedirs("json/posts/"+newPostId+"/comments")
+
+    postfile = open("json/posts/"+newPostId+"/postdat.json", "w")
     usersfile = open("json/users.json","w")
-    posts.update(
+    post.update(
         {
-            newPostId: {
                 "title": title,
                 "author": name,
                 "content": content.replace("<","&lt;").replace(">","&gt;"),
                 "likes": 1,
                 "locked": False,
-                "comments": {},
                 "time" : time.time(),
                 "attachments": {}
-            }
         }
     )
     length = len(users[session["name"]]["posts"])
     users[session["name"]]["posts"].update(
         {length: {"id":str(newPostId)}}
     )
-    postfile.write(json.dumps(posts, indent=2))
+    postfile.write(json.dumps(post, indent=2))
     usersfile.write(json.dumps(users,indent=2))
+    with open("json/searchmap.json","r") as smap:
+        searchmap = json.loads(smap.read())
+        tokens = word_tokenize(content)
+        tagged_tokens = pos_tag(tokens)
+        topic_words = []
+        seen_words = set()
+        for word, pos in tagged_tokens:
+            if (pos.startswith('NN') or pos.startswith('NNP')) and word.lower() not in seen_words:
+                topic_words.append(word)
+                seen_words.add(word.lower())
+        for a in topic_words:
+            try:
+                searchmap[a.lower()].insert(0,newPostId)
+            except KeyError:
+                searchmap[a.lower()] = [newPostId]
+        searchwrite = open("json/searchmap.json","w").write(json.dumps(searchmap))
+
     print(f"Name: {name}, Title: '{title}'\nContent: {content}")
 
 def makecomment(name,request):
@@ -130,24 +158,20 @@ def makecomment(name,request):
         return "do not make an empty comment"
     if checkban(name):
         return getreason(name)
-    users = getData("json/users.json")
-    posts = getData("json/posts.json")
-    newCommentId = len(posts[post]["comments"])
-    postfile = open("json/posts.json", "w")
-    posts[post]["comments"].update(
+    newComId = str(len(os.listdir("json/posts/"+post+"/comments")))
+    print("yes - json/posts/"+post+"/comments/"+newComId+".json")
+    comment = json.loads("{}")
+    comfile = open("json/posts/"+post+"/comments/"+newComId+".json", "x")
+    comment.update(
         {
-            newCommentId: {
-                "author": name,
-                "content": content.replace("<","&lt;").replace(">","&gt;"),
-                "likes": 1,
-                "locked": False,
-                "comments": {},
-            }
+            "author": name,
+            "content": content.replace("<","&lt;").replace(">","&gt;"),
+            "likes": 1,
+            "locked": False,
         }
     )
-    postfile.write(json.dumps(posts, indent=2))
-    postfile.close()
-  
+    comfile.write(json.dumps(comment, indent=2))
+    comfile.close()
 @app.route("/")
 def main(name=None):
     global processing_time
@@ -157,15 +181,26 @@ def main(name=None):
     user_agent = request.headers.get('User-Agent')
     return renderindex(posts,"Home",session)
 
+@app.route("/random")
+def random():
+    global processing_time
+    global posts
+    with open("templates/randomgen.html", "r") as load:
+        posts = load.read().replace("^api^","postget?arg=").replace("^counter^","/api/postcount")
+    user_agent = request.headers.get('User-Agent')
+    return renderindex(posts,"Random",session)
+
+
 @app.route("/user/<name>")
 def userpage(name):
     if name == None:
         return "invalid user"
-    with open("templates/genposts.html", "r") as load:
-        posts = load.read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name)
     users = json.loads(open("json/users.json","r").read())
+    with open("templates/profile.html", "r") as load:
+        posts = load.read().replace("^api^","userget?arg="+name+"&id=").replace("^counter^","/api/postcountuser?arg="+name).replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
+
     try:
-        return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^",users[name]["bio"])
+        return renderindex(posts,name,session)
     except KeyError:
         return renderindex(posts,name,session) + open("templates/profile.html", "r").read().replace("^pfp^",getuserprofile(name)).replace("^profile^",name).replace("^bio^","Hello World")
 
@@ -178,14 +213,18 @@ def api(api):
         case "userget":
             postid = request.args.get("id")
             try:
-                return json.loads(loadjson())[getData("json/users.json")[arg]["posts"][postid]["id"]]
+                post = json.loads(open("json/posts/"+getData("json/users.json")[arg]["posts"][postid]["id"]+"/postdat.json","r").read())
+                return {"author":post["author"],"content":post["content"],"title":post["title"],"time":post["time"]}
             except KeyError:
                 return "null"
 
         case "getprofile":
             return getuserprofile(arg)
         case "postget":
-            post = json.loads(loadjson()).get(arg, "nill")
+            try:
+                post = json.loads(open("json/posts/"+arg+"/postdat.json","r").read())
+            except FileNotFoundError:
+                return "null"
             if post == "nill":
                 return "nill"
             try: 
@@ -193,7 +232,7 @@ def api(api):
             except KeyError:
                 return {"author":post["author"],"content":post["content"],"title":post["title"]}
         case "postcount":
-            return str(len(json.loads(loadjson())))
+            return str(len(os.listdir("json/posts")))
             
         case "makepost":
             userread = json.loads(open("json/users.json", "r").read())
@@ -237,10 +276,14 @@ def api(api):
             makecomment(name,request)
             return "<meta http-equiv=\"Refresh\" content=\"0; url=/\" />"
         case "comget":
-            identifier = request.args.get("id")
-            return json.loads(open("json/posts.json","r").read())[str(arg)]["comments"][str(identifier)]
+            
+            try:
+                identifier = request.args.get("id")
+                return json.loads(open("json/posts/"+str(arg)+"/comments/"+str(int(identifier))+".json","r").read())
+            except FileNotFoundError:
+                return "null"
         case "comcount":
-            return str(len(json.loads(open("json/posts.json","r").read())[str(arg)]["comments"]))
+            return str(len(os.listdir("json/posts/"+str(arg)+"/comments")))
             
 @app.route("/comments/<post>")
 def commentdisplay(post):
@@ -291,7 +334,10 @@ def login():
             return '<meta http-equiv="Refresh" content="0; url=/" /> <p>incorrect username or password</p>'
         return '<meta http-equiv="Refresh" content="0; url=/" />'
     
-
+@app.route("/logout")
+def logout():
+    session.clear()
+    return '<meta http-equiv="Refresh" content="0; url=/" />'
 
 @app.route("/register/")
 def register():
@@ -300,7 +346,7 @@ def register():
     userread = json.loads(open("json/users.json", "r").read())
     name = request.args.get("name")
     password = request.args.get("pass")
-
+    
     if name == None or password == None:
         return "You must have the username and password to be able to register"
     for item in userread:
@@ -317,7 +363,8 @@ def register():
                 "banned": 0,
                 "theme": "normal.html",
                 "posts": {},
-                "pfp": "0"
+                "pfp": "0.png",
+                "admin": 0
             }
             
         }
@@ -331,9 +378,10 @@ def register():
 @app.route("/settings/")
 def settings():
     sessname = session.get("name", "Login")
-    if sessname == "admin":
+    adminstat = json.loads(open("json/users.json").read())[sessname].get("admin",0)
+    if adminstat:
         return renderindex(open("templates/settingsadmin.html", "r").read(),"Admin Settings",session)
-    if not sessname == "Login":
+    elif not adminstat:
         return renderindex(open("templates/settings.html", "r").read().replace("^profile^",getuserprofile(sessname)),"Settings",session)
     else:
         return '<meta http-equiv="Refresh" content="0; url=/" />'
@@ -345,6 +393,7 @@ def chngsettings(setting):
         sessname = session["name"]
     except:
         return "please log in"
+    adminstat = json.loads(open("json/users.json").read())[sessname]["admin"]
     match setting:
         case "changepass":
             password = request.args.get("oldpass")
@@ -365,14 +414,16 @@ def chngsettings(setting):
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             usermod(sessname,"bio",bio)
             return '<meta http-equiv="Refresh" content="0; url=/user/'+sessname+'" />'
+
         case "changetheme":
             theme = request.args.get("theme")
             if theme == "":
                 return '<meta http-equiv="Refresh" content="0; url=/" />'
             usermod(sessname,"theme",theme)
             return '<meta http-equiv="Refresh" content="0; url=/" />'
+
         case "adminban":
-            if not sessname == "admin":
+            if adminstat:
                 return "you are not an admin"
             user = request.args.get("user", 0)
             reason = request.args.get("reason", 0)
@@ -383,52 +434,94 @@ def chngsettings(setting):
             return "banned"
 
         case "adminunban":
-            if not sessname == "admin":
+            if adminstat:
                 return "you are not an admin"
             user = request.args.get("user", "no user")
             usermod(user,"banned",0)
             return "unbanned"
+
         case "admindelpost":
-            if not sessname == "admin":
+            if adminstat:
                 return "you are not an admin"
             identifier = request.args.get("id", 0)
             reason = request.args.get("reason", 0)
+
             if identifier and reason:
-                posts = json.loads(open("json/posts.json","r").read())
-                posts[identifier]["content"] = "{{This post has been deleted for: " + reason +"}}"
-                posts[identifier]["title"] = "{{This post has been deleted for: "+ reason + "}}"
-                with open("json/posts.json", "w") as postwrite:
+                posts = json.loads(open("json/posts/"+identifier+"/postdat.json","r").read())
+                posts["content"] = "{{This post has been deleted for: " + reason +"}}"
+                posts["title"] = "{{This post has been deleted for: "+ reason + "}}"
+                with open("json/posts/"+identifier+"/postdat.json", "w") as postwrite:
                     postwrite.write(json.dumps(posts, indent=2))
                 return "deleted post"
             else:
                 return "missing parameter"
-#@app.route("/search/")
-#def searchpage():
-#    sessname = session.get("name", "Login")
-#    object = request.args.get("object")
-#    searched = request.args.get("search")
-#    index = open("templates/index.html", "r").read()
-#    if not searched == None and not object == None:
-#        match object:
-#            case "channel":
-#                channellist = []
-#                channels = json.loads(open("json/catagories.json", "r").read())
-#                for i in range(len(channels)):
-#                    if distance(searched, channels[str(i)]["name"]) < 4:
-#                        channellist.append(channels[str(i)]["name"])
-#                return channellist
-#            case "posts":
-#                postslist = []
-#                postsrender = ""
-#                postspage = open("templates/post.html","r").read()
-#                posts = json.loads(open("json/posts.json", "r").read())
-#                for i in range(len(posts)):
-#                    if distance(searched, posts[str(i)]["title"]) < 4 or searched in posts[str(i)]["title"]:
-#                        postslist.append(posts[str(i)])
-#                        postsrender += postspage.replace("^user^",posts[str(i)]["author"]).replace("^title^",posts[str(i)]["title"]).replace("^content^",posts[str(i)]["content"]) + "<br>"
-#                return renderindex(postsrender,searched,session)
-#    else:
-#        return renderindex(open("templates/search.html", "r").read(),"Search",session)
+        case "adminadd":
+            if sessname == "admin":
+                name = request.args.get("name", 0)
+                if not name:
+                    return "doesn't exist"
+                user = json.loads(open("json/users.json").read())
+                user[name]["admin"] = 1
+                with open("json/users.json","w") as userwrite:
+                    userwrite.write(json.dumps(user))
+                return "admin'd"
+            return "must be the admin account to do such a task"
+
+        case "adminrem":
+            if sessname == "admin":
+                name = request.args.get("name", 0)
+                if not name:
+                    return "doesn't exist"
+                user = json.loads(open("json/users.json").read())
+                user[name]["admin"] = 0
+                with open("json/users.json","w") as userwrite:
+                    userwrite.write(json.dumps(user))
+                return "admin'nt"
+            return "must be the admin account to do such a task"
+
+@app.route("/search/")
+def searchpage():
+    sessname = session.get("name", "Login")
+    typeof = request.args.get("object")
+    searched = request.args.get("search")
+    if not searched == None and not typeof == None:
+        match typeof:
+            case "channel":
+                channellist = []
+                channels = json.loads(open("json/catagories.json", "r").read())
+                for i in range(len(channels)):
+                    if distance(searched, channels[str(i)]["name"]) < 4:
+                        channellist.append(channels[str(i)]["name"])
+                return channellist
+            case "posts":
+                search = searched.lower()
+                tokens = word_tokenize(search)
+                tagged_tokens = pos_tag(tokens)
+                topic_words = [word for word, pos in tagged_tokens if pos.startswith('NN') or pos.startswith('NNP')]
+                
+                with open("json/searchmap.json","r") as smap:
+                    searchmap = json.loads(smap.read())
+                    output = "<div class=posts>"
+                    posts = []
+                    for i in topic_words:
+                        mapped = searchmap.get(i,[])
+                        loop = 0
+                        if len(mapped) > 20:
+                            loop = 20
+                        else:
+                            loop = len(mapped)
+                        for a in range(loop):
+                            if len(mapped[a]) == 0:
+                                continue
+                            else:
+                                post = json.loads(open("json/posts/"+mapped[a]+"/postdat.json","r").read())
+                                if mapped[a] in posts:
+                                    continue
+                                posts.append(mapped[a])
+                                output += f'<div class=post><a href=/user/{post["author"]}><img style="width:5%; height:auto; position: absolute; top: 6%; left: 0%;" class=logo src="{getuserprofile(post["author"])}"></a><p style="position: absolute; left:6%;">Posted by {post["author"]}</p><br><br><br><br><center><textarea class=name rows="2"   readonly>{post["title"]}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{post["content"]}</textarea><br><br><a href=/comments/{str(mapped[a])}><img src="/images/list.png" style="width:3%; left:4%; position: absolute;"></a><img src="/images/reply.png" style="width:3%; float:left" onclick="reply({str(mapped[a])})"><br><br><br><br></center></div>'
+                    output += "</div>"
+                    return renderindex(output,"h",session)
+
 
 @app.route("/imagedatabase/<path:filename>")
 def profiledatabase(filename):
@@ -468,7 +561,7 @@ def uploadpfp():
 @app.route("/channels/")
 def channels():
     channel = open("templates/genposts.html", "r").read().replace("^api^","channelget").replace("^counter^","channelcount")
-    return renderindex(channel,"Channels",session) 
+    return renderindex(channel,"Channels",session)
 
 # DSI CODE
 def DSIrenderindex(page,title,session):
@@ -536,6 +629,6 @@ def DSIpage(page):
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", 8080)
+    app.run("0.0.0.0", 80)
     app.config['UPLOAD_FOLDER'] = 'imagedatabase'
     app.config['MAX_CONTENT_LENGTH'] = 8 * 1000 * 1000

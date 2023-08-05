@@ -17,3 +17,5 @@ deleted much of the useless old functions
 
 0.08 - themes
 	*0.08_1 bugfix with logged out users
+
+0.9 - better posts managment + huge qol. Admin accounts added. Logout button. New search engine. New trending page. No lag to generation of posts (except for the user page). New logo.

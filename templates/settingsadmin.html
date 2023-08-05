@@ -1,5 +1,17 @@
+
 <div class=posts id=posts>
 	<center>
+	<div class="post">
+	<h4>Change Profile Picture</h4>
+	<form action = "/uploadprofile" method = "post" enctype="multipart/form-data">
+		<label for="files">
+			<img accept="image/*" id="filesdisplay" src="^pfp^" class=logo style="width: 10%;" alt="Change">
+		</label>
+		<br>
+		<input style="visibility:hidden;" id=files type="file" name="file"><br>
+		<input type = "submit" value="Upload">
+	</form>  
+	<br>
 	<h4>Change password</h4>
 	<form action="/chngsetting/changepass">
 		<label>Old Password</label>
@@ -16,9 +28,30 @@
 		<br>
 		<input class=styledbutton type="submit" value="Save">
 	</form>
-
-
 	<br>
+	<form action="/chngsetting/changebio">
+		<label>Change Bio</label><br>
+		<textarea name="bio" required></textarea><br>
+		<input class=styledbutton type="submit" value="Save">
+	</form>
+	<br>
+	<form action="/chngsetting/changetheme">
+		<label>Change theme</label>
+		<select name="theme">
+			<option value="normal.html">Default</option>
+			<option value="classic.html">Classic</option>
+			<option value="dark.html">Dark</option>
+			<option value="sunset.html">Sunset</option>
+			<option value="fluent.html">Fluent (skykrye)</option>
+		</select>
+		<input class=styledbutton type="submit" value="Save">
+	</form>
+	<br>
+	</div>
+	<div class="post">
+	<hr class="input" style="width:80%">
+	<h1>admin stuff</h1>
+	<hr class="input" style="width:80%">
 	<h4>Ban User</h4>
 	<form action="/chngsetting/adminban">
 		<label>User</label>
@@ -52,5 +85,44 @@
 		<br>
 		<input class=styledbutton type="submit" name="submit">
 	</form>
+	<br>
+	<hr class="input" style="width:80%">
+	<h1>admin account stuff (must be logged into the admin account)</h1>
+	<hr class="input" style="width:80%">
+	<br>
+	<h4>Add admin</h4>
+	<form action="/chngsetting/adminadd">
+		<label>name</label>
+		<br>
+		<input class=input type="text" name="name">
+		<br>
+		<input class=styledbutton type="submit" name="submit">
+	</form>
+	<br>
+	<h4>Remove admin</h4>
+	<form action="/chngsetting/adminrem">
+		<label>name</label>
+		<br>
+		<input class=input type="text" name="name">
+		<br>
+		<input class=styledbutton type="submit" name="submit">
+	</form>
+	<br>
+	</div>
 	</center>
 </div>
+
+<script>
+	const input = document.getElementById('files');
+	const preview = document.getElementById('filesdisplay');
+	input.addEventListener('change', function() {
+	  if (input.files && input.files[0]) {
+		const reader = new FileReader()
+		reader.onload = function(e) {
+		  preview.src = e.target.result
+		}
+		reader.readAsDataURL(input.files[0]);
+	  }
+	});
+</script>
+

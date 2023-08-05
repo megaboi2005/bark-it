@@ -8,69 +8,85 @@ const mode = 0
 var wrapper, content, test;
 var nullcheck = false
 var postvar
+let xmlHttpReq = new XMLHttpRequest();
+var loadcheck = true
+wrapper = document.getElementById("wrapper");
+content = document.getElementById("content");
+ 
+
+
 const modes = [
   `<div class=post><a href=/user/{{user}}><img style="width:5%; height:auto; position: absolute; top: 6%; left: 0%;" class=logo src="{{pfp}}"></a><p style="position: absolute; left:6%;">Posted by {{user}} at <br>{{time}}</p><br><br><br><br><center><textarea class=name rows="2"   readonly>{{title}}</textarea><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><br><a href=/comments/{{PostID}}><img src="/images/list.png" style="width:3%; left:4%; position: absolute;"></a><img src="/images/reply.png" style="width:3%; float:left" onclick="reply({{PostID}})"><br><br><br><br></center></div>`,
   `<center><div class=post><a href=/user/{{user}}><img style="width:5%;height:5%;" class=logo src="{{pfp}}"></a><p>Posted by {{user}}</p><br><textarea style="resize: vertical;" readonly class=textpost rows=\"5\">{{content}}</textarea><br><button>Reply (doesn't work yet)</button></br></div></center>`
 ]
 function getcount() {
-  let xmlHttpReq = new XMLHttpRequest();
-  xmlHttpReq.open("GET", "^counter^", false);
-  xmlHttpReq.send(null);
-  postvar = Number(xmlHttpReq.responseText) - 1
+  let counter = new XMLHttpRequest();
+  counter.open("GET", "^counter^", false);
+  counter.send(null);
+  postvar = Number(counter.responseText) - 1
   console.log(postvar)
   
 }
-function loadposts(count) {
-  for (let i=0; i<count; i++){
-        
-          if (nullcheck == true) {
-            break
-          }
-          let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/api/^api^"+postvar, false); 
-          xmlHttpReq.send(null);
-        if (xmlHttpReq.responseText !== "null") {
-          console.log(nullcheck)
-          var postarray = JSON.parse(xmlHttpReq.responseText)
-          xmlHttpReq.open("GET", "/api/getprofile?arg="+postarray["author"], false); 
-          xmlHttpReq.send(null);
-          var d = new Date(postarray["time"]*1000);
-          content.innerHTML += modes[mode].replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]).replace("{{pfp}}",xmlHttpReq.responseText).replaceAll("{{PostID}}",postvar).replaceAll("{{time}}",d.toDateString() + " at " + d.getHours()+":"+d.getMinutes());
-          console.log(postarray["time"]*1000)
-          postvar-=1
 
-        } else {
-          nullcheck = true
-        }
-      }
+async function fetchPostData(postId) {
+  try {
+    const response = await fetch(`/api/^api^${postId}`);
+    const postData = await response.json();
+    return postData;
+  } catch (error) {
+    console.error('Error fetching post data:', error);
+    return null;
+  }
 }
+
+async function loadPostsInCountdownOrder(postvar) {
+  const content = document.getElementById("content");
+
+  for (let i = postvar; i >= postvar-100; i--) {
+    const postId = i;
+    const postData = await fetchPostData(postId);
+    profile = await fetch("/api/getprofile?arg="+postData["author"]).then(response => {
+      return response.text();
+    })
+
+    console.log(profile)
+    if (postData) {
+      const d = new Date(postData["time"] * 1000);
+      content.innerHTML += modes[mode]
+        .replaceAll("{{user}}", postData["author"])
+        .replace("{{title}}", postData["title"])
+        .replace("{{content}}", postData["content"])
+        .replaceAll("{{PostID}}", postId)
+        .replace("{{pfp}}",profile)
+        .replace("{{time}}", d.toDateString() + " at " + d.getHours() + ":" + d.getMinutes());
+    } else {
+      console.error(`Failed to fetch post data for post ID ${postId}`);
+    }
+  }
+}
+
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
   getcount();
-  loadposts(4)
+  loadPostsInCountdownOrder(postvar)
+
 });
 
 function scroller() {
     console.log(postvar)
     if (nullcheck == false) {
 
-    if (wrapper.scrollTop + wrapper.offsetHeight + 10 > content.offsetHeight) {
-      loadposts(3)
+    //if (wrapper.scrollTop + wrapper.offsetHeight + 10 > content.offsetHeight) {
+    //  loadposts(3)
 
-    } 
+    //} 
 
   }
-
-
-
-    
-
 }
 
-wrapper = document.getElementById("wrapper");
-content = document.getElementById("content");
-test = document.getElementById("test");
 
-content.innerHTML = "";
 
 
 if (wrapper.addEventListener)

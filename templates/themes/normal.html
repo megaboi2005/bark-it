@@ -51,7 +51,7 @@
 	.sidebar {
 		
 		
-		width: 50%;
+		width: 49%;
 		height: 88%;
 		position: sticky;
 		border-style: solid;
@@ -266,7 +266,7 @@
 		} else {
 			sidebar2.style.display = "block"
 			sidearea.style.width = "20%"
-			sidebar.style.width = "50%"
+			sidebar.style.width = "49%"
 			//toggle_button.style.height = "57px"
 			toggle_button.src = "/images/arrow-back.png"
 			try {
@@ -359,24 +359,27 @@
 			</center>
 		</div>
 		<div class=sidebar2 id=sidebar2>
-				<a class=sidebutton href="/channels"><button>Channels</button></a>
+				<button class=sidebutton>Top Dog Trends</button>
 				<button class=sidebutton onclick=toggle_window(4)>Search</button>
-    			<a class=sidebutton href="/recent"><button>Recent</button></a>
-    			<button class=sidebutton onclick=toggle_window(3)>Register</button>
+    			<a class=sidebutton href="/random"><button>Random</button></a>
+				<a class=sidebutton href="/channels"><button>Channels</button></a>
     			<center>
     			<a class="active" href="/settings" >
     			<div class="settings">
     			<center><img id=logo style="width: 25%;"src=/images/settings.png></center>
     			</div>
     			</a>
+				<a class=sidebutton href="/info"><h6 style="color:grey;">Terms of service & Privacy Policy</h6></a>
     			</center>
 		</div>
 		<div class=sidebar id="sidebar">
 				<center><a class="active" href="/user/^profile^" ><img id=logo class=logo src="^pfp^"></a></center>
 				<button class=sidebutton onclick=toggle_window(2)>^profile^</button>
 				<button class=sidebutton onclick=load()>Post</button>
-    			<a class=sidebutton href="/info"><button>Guidelines & more</button></a>
-				<center><h6 style="color:grey;">Bark-it! ^version^</h6></center>
+    			<a href="logout"><button>Logout</button></a>
+				<center>
+					<h6 style="color:grey;">Bark-it! ^version^</h6>
+				</center>
     			
     	</div>
 
@@ -425,6 +428,7 @@
 				<input class=input type="password" id="id2" name="pass">
 				<br>
 				<input type="submit" value="Submit">
+				<h4 onclick=toggle_window(3) style="color: darkgrey;">Don't have an account? Click here to register.</h4>
 			</form>
 		</div>
 	</div>
@@ -476,7 +480,7 @@
 		</div>
 	</div>
 	
-	<div class="postbox" style="display: none; width: 50%;" id="replybox">
+	<div class="postbox" style="display: none; width: 50%; height: 30%;" id="replybox">
 		<div class=post>
 			<img src="/images/bark-it-x.png" onclick="toggle_window(0)" class="logo" style="width:35px;float:right;">
 			<br>

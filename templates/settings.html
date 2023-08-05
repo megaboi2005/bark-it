@@ -1,10 +1,11 @@
 
 <div class=posts id=posts>
 	<center>
+	<div class=post style="padding: 2%;width: 95.5%;">
 	<h4>Change Profile Picture</h4>
 	<form action = "/uploadprofile" method = "post" enctype="multipart/form-data">
 		<label for="files">
-			<img accept="image/*" id="filesdisplay" src="^profile^" class=logo style="width: 10%;" alt="Change">
+			<img accept="image/*" id="filesdisplay" src="^pfp^" class=logo style="width: 10%;" alt="Change">
 		</label>
 		<br>
 		<input style="visibility:hidden;" id=files type="file" name="file"><br>
@@ -34,6 +35,7 @@
 		<input class=styledbutton type="submit" value="Save">
 	</form>
 	<br>
+
 	<form action="/chngsetting/changetheme">
 		<label>Change theme</label>
 		<select name="theme">
@@ -45,6 +47,8 @@
 		</select>
 		<input class=styledbutton type="submit" value="Save">
 	</form>
+	<br>
+	</div>
 	</center>
 </div>
 

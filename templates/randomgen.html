@@ -1,50 +1,8 @@
-<style>
-	.userprofile {
-		width: 95%;
-		height: 200px;
-		left: 0%;
-		border-style: solid;
-		border-radius: 10px;
-		border-color:  #FCFFB2;
-		border-width: 2px;
-		background-color: #F97B72;
-		overflow: auto;
-	}
-    .sidebaruser {
-		  width: 98.5%;
-		  height: 100%;
-		  border-style: solid;
-		  border-radius: 10px;
-		  border-color: #F97B72;
-		  border-width: 2px;
-		  background-color: #282929;
-		  padding-left: 1%;
-    }
-</style>
-
-
-
-
-<div id=posts style="height: 95%; width: 75%; float: right; overflow: auto;">
-	<div class=userprofile>
-			<div class=sidebaruser>
-				<center><p>^profile^</p></center>
-					<a class="active" href="/" ><img id=logo src="^pfp^" style="width: 10%; float: left;"></a>
-					
-					<textarea readonly style="text-align: center; height:42.5%; resize: vertical;">^bio^</textarea>
-					<center>
-
-					<button style="width: 10%; height: 10%;">Follow</button>
-					</center>
-			</div>
-	</div>
-  <div id="wrapper" style="height: 95%; overflow: auto;">
+<div class=posts style="height: 95%; overflow: auto;" id=posts>
+  <div id="wrapper" style="height: 100%; overflow: auto;">
     <div id="content"> </div>
   </div>
 </div>
-
-
-
 <script type="text/javascript">
 const mode = 0
 var wrapper, content, test;
@@ -69,7 +27,7 @@ function loadposts(count) {
             break
           }
           let xmlHttpReq = new XMLHttpRequest();
-          xmlHttpReq.open("GET", "/api/^api^"+postvar, false); 
+          xmlHttpReq.open("GET", "/api/^api^"+Math.floor(Math.random() * postvar+1), false); 
           xmlHttpReq.send(null);
         if (xmlHttpReq.responseText !== "null") {
           console.log(nullcheck)
@@ -79,7 +37,6 @@ function loadposts(count) {
           var d = new Date(postarray["time"]*1000);
           content.innerHTML += modes[mode].replaceAll("{{user}}",postarray["author"]).replace("{{title}}",postarray["title"]).replace("{{content}}",postarray["content"]).replace("{{pfp}}",xmlHttpReq.responseText).replaceAll("{{PostID}}",postvar).replaceAll("{{time}}",d.toDateString() + " at " + d.getHours()+":"+d.getMinutes());
           console.log(postarray["time"]*1000)
-          postvar-=1
 
         } else {
           nullcheck = true

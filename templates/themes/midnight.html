@@ -44,7 +44,7 @@
 	}
 
 	.sidebar {
-    width: 50%;
+	width: 49%;
     height: 88%;
     position: sticky;
     border: 5px solid #00ffd500;
@@ -247,7 +247,7 @@
 		} else {
 			sidebar2.style.display = "block"
 			sidearea.style.width = "20%"
-			sidebar.style.width = "50%"
+			sidebar.style.width = "49%"
 			//toggle_button.style.height = "57px"
 			toggle_button.src = "/images/arrow-back.png"
 			try {
@@ -342,7 +342,7 @@
 		<div class=sidebar2 id=sidebar2>
 				<a class=sidebutton href="/channels"><button>Channels</button></a>
 				<button class=sidebutton onclick=toggle_window(4)>Search</button>
-    			<a class=sidebutton href="/recent"><button>Recent</button></a>
+    			<a class=sidebutton href="/random"><button>Random</button></a>
     			<button class=sidebutton onclick=toggle_window(3)>Register</button>
     			<center>
     			<a class="active" href="/settings" >
@@ -350,13 +350,14 @@
     			<center><img id=logo style="width: 25%;"src=/images/settings.png></center>
     			</div>
     			</a>
+				<a class=sidebutton href="/info"><h6 style="color:grey;">Terms of service & Privacy Policy</h6></a>
     			</center>
 		</div>
 		<div class=sidebar id="sidebar">
 				<center><a class="active" href="/user/^profile^" ><img id=logo class=logo src="^pfp^"></a></center>
 				<button class=sidebutton onclick=toggle_window(2)>^profile^</button>
 				<button class=sidebutton onclick=load()>Post</button>
-    			<a class=sidebutton href="/info"><button>Guidelines & more</button></a>
+    			<a href="logout"><button>Logout</button></a>
 				<center><h6 style="color:grey;">Bark-it! ^version^</h6></center>
     			
     	</div>
@@ -406,6 +407,7 @@
 				<input class=input type="password" id="id2" name="pass">
 				<br>
 				<input type="submit" value="Submit">
+				<h4 onclick=toggle_window(3) style="color: darkgrey;">Don't have an account? Click here to register.</h4>
 			</form>
 		</div>
 	</div>
