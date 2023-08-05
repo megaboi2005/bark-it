@@ -47,10 +47,11 @@ Take the original, normal.html in /templates/themes, and use it as a template.
 ### requirements for a theme
 there are required keywords that need to be a part of every custom theme made.
 every keyword has ^ on both sides to indicated that its a keyword.
-|keyword |used for|
-|||
-|^title^|for the title in the browser |
-|^version^  |displays the version of bark-it|
-|^profile^|displays the logged in username, those logged out are defaulted to login|
-|^pfp^|link of the profile picture of the logged in user|
-|^posts^|MUST NEED! used to display everything in the middle of the screen, posts, settings and more.|
+| KEYWORD     | USE/FUNCTION                                                |
+|-------------|------------------------------------------------------------|
+| ^title^     | For the title in the browser                                |
+| ^version^   | Displays the version of bark-it                            |
+| ^profile^   | Displays the logged in username, those logged out are defaulted to login |
+| ^pfp^       | Link of the profile picture of the logged-in user         |
+| ^posts^     | MUST NEED! Used to display everything in the middle of the screen, posts, settings, and more. |
+
