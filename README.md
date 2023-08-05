@@ -26,13 +26,31 @@ If you want to see the bad aiohttp-based code then go to that branch and don't c
 ## Credits
 
 - Thanks to Bigjango for taking it upon themself to rewrite all the old features and optimizing my crappy code.
-- Thanks to TheShadowDragon for using his javascript skills.
-- Thanks to SkyKrye for some cool ideas.
+- Thanks to TheShadowDragon for using his javascript skills and cool ideas.
+- Thanks to SkyKrye for the best art ever.
+- Thanks to Wallee for showing me how bad bark-it is and helping me show how to fix it.
+- Thanks to my mods, friends, and everyone who helped with testing on this project.
 
 ## Libraries
-1. pip3 install flask
-2. pip3 install cryptocode
+flask
+cryptocode
+nltk
 
 ## How to run
 
 Open directory and type `flask run` or `python3 app.py` and hit enter. Alternatively, if you wish to run the code in debug mode, type `flask --app app.py --debug run` (Allows you to speed up checking process instead of restarting a lot).
+
+## How do I make a theme?
+
+Take the original, normal.html in /templates/themes, and use it as a template.
+
+### requirements for a theme
+there are required keywords that need to be a part of every custom theme made.
+every keyword has ^ on both sides to indicated that its a keyword.
+|keyword |used for|
+|||
+|^title^|for the title in the browser |
+|^version^  |displays the version of bark-it|
+|^profile^|displays the logged in username, those logged out are defaulted to login|
+|^pfp^|link of the profile picture of the logged in user|
+|^posts^|MUST NEED! used to display everything in the middle of the screen, posts, settings and more.|
